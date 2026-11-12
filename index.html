@@ -3,28 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MYEONGDONG 2030</title>
+<title>이상민 조 — MYEONGDONG 2030</title>
 <meta name="description" content="우리가 상상한 2030년의 명동">
-<link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="./assets/images/favicon.png">
+<link rel="stylesheet" href="./css/fonts.css">
+<link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
 
 <!-- 헤더 -->
 <header class="hd" id="hd">
-  <a class="hd-logo" href="#top" data-t="siteName">MYEONGDONG 2030</a>
+  <a class="hd-logo" href="./index.html" id="teamLogo" title="이상민 조 — 처음부터 다시 보기">
+    <img src="./assets/images/logo.svg" alt="" width="40" height="40"><span><b data-t="teamName">이상민 조</b><i data-t="siteName">MYEONGDONG 2030</i></span>
+  </a>
   <div class="hd-right">
-    <nav class="hd-nav"><a href="#world">World</a><a href="#products">Products</a></nav>
-    <a class="btn-primary" href="#products"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
+    <nav class="hd-nav"><a href="../index.html" class="hd-home" title="전체 프로젝트로 이동"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>전체 프로젝트</a><a href="#world">World</a><a href="#select">Products</a></nav>
+    <a class="btn-primary" href="#select"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
     <button class="hd-menu" id="menuOpen" type="button">Menu</button>
   </div>
 </header>
 <div class="mnav" id="mnav">
   <button class="mnav-close" id="menuClose" type="button">Close</button>
+  <a href="../index.html">전체 프로젝트</a>
   <a href="#world">World</a>
   <a href="#relay">Relay</a>
-  <a href="#products">Products</a>
-  <a class="btn-primary" href="#products"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
+  <a href="#select">Products</a>
+  <a class="btn-primary" href="#select"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
 </div>
 
 <main>
@@ -38,7 +42,7 @@
       </div>
       <div class="a-map" id="aMap">
         <div class="a-tilt" id="aTilt"><canvas id="mapA" aria-label="하늘에서 내려다본 명동 거리"></canvas></div>
-        <div class="a-street" id="aStreet"></div>
+        <div class="c3d-holder" id="a3d"></div>
         <div class="vignette"></div>
       </div>
       <div class="a-intro" id="aIntro">
@@ -105,7 +109,7 @@
         </div>
       </div>
       <div class="vignette"></div>
-      <div class="c-street" id="cStreet"></div>
+      <div class="c3d-holder" id="d3d"></div>
       <div class="c-head panel" id="cHead">
         <p class="t-label" data-t="city.label"></p>
         <h2 class="t-title" data-t="city.title"></h2>
@@ -114,35 +118,73 @@
     </div>
   </section>
 
-  <!-- ⑦ Products -->
+  <!-- ⑦ 제품 고르기: 목록이나 지도에서 고르면 그 골목으로 내려가고, 이전/다음으로 바로 옆 제품으로 이동 -->
+  <section class="select" id="select">
+    <div class="sel-stage" id="sStage">
+      <canvas id="mapS" aria-hidden="true"></canvas>
+      <div class="c3d-holder sel-3d" id="s3d"></div>
+      <div class="vignette"></div>
+      <div class="sel-markers" id="sMarkers"></div>
+      <aside class="sel-list panel" id="sList">
+        <p class="t-label" data-t="select.label"></p>
+        <h2 class="sel-title" data-t="select.title"></h2>
+        <p class="sel-sub" data-t="select.body"></p>
+        <ol class="sel-items" id="sItems"></ol>
+      </aside>
+      <div class="sel-detail" id="sDetail" aria-hidden="true">
+        <div class="sel-img"><img id="sImg" alt=""></div>
+        <div class="sel-panel panel">
+          <div class="r-cap-top"><span class="r-cap-no" id="sNo"></span><span class="r-cap-count" id="sCount"></span></div>
+          <div class="r-cap-name" id="sName"></div>
+          <p class="sel-line" id="sLine"></p>
+          <div class="chips">
+            <div class="chip"><b>입력 정보</b><span id="sIn"></span></div>
+            <div class="chip"><b>AI 판단</b><span id="sAi"></span></div>
+            <div class="chip"><b>물리적 반응</b><span id="sAct"></span></div>
+          </div>
+          <a class="btn-primary sel-go" id="sGo" href="#"><span data-t="select.go"></span><span class="arr">↗</span></a>
+          <div class="sel-pager">
+            <button type="button" class="sel-arrow" id="sPrev" aria-label="이전 제품">←</button>
+            <div class="sel-dots" id="sDots"></div>
+            <button type="button" class="sel-arrow" id="sNext" aria-label="다음 제품">→</button>
+          </div>
+          <button class="btn-text sel-back" id="sBack" type="button"><span data-t="select.back"></span><span class="arr">↙</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑧ Products -->
   <section class="products" id="products">
     <p class="t-label rv" data-t="productsSection.label"></p>
     <h2 class="t-title rv" style="--i:1" data-t="productsSection.title"></h2>
     <div class="grid" id="grid"></div>
   </section>
 
-  <!-- ⑧ Outro -->
+  <!-- ⑨ Outro -->
   <section class="outro" id="outro">
     <div class="o-art" id="oArt"></div>
     <div class="o-text">
       <p class="o-line rv" id="oLine"></p>
-      <a class="btn-primary rv" style="--i:1" href="#products"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
+      <a class="btn-primary rv" style="--i:1" href="#select"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
     </div>
   </section>
 </main>
 
 <footer class="footer">
-  <span>MYEONGDONG 2030 — Speculative Street, Digital Content Design</span>
+  <span>이상민 조 · MYEONGDONG 2030 — <a href="../index.html">전체 프로젝트</a></span>
   <span>Typeface: Pretendard (SIL OFL)</span>
 </footer>
 
 <a class="to-top" id="toTop" href="#top" aria-label="맨 위로">↑</a>
 
 <!-- 순서 중요: 설정 → 문구 → 그림 → 지도 → 실행 -->
-<script src="js/config.js"></script>
-<script src="js/content.js"></script>
-<script src="js/art.js"></script>
-<script src="js/map.js"></script>
-<script src="js/main.js"></script>
+<script src="./js/config.js"></script>
+<script src="./js/content.js"></script>
+<script src="./js/art.js"></script>
+<script src="./js/map.js"></script>
+<script src="./js/vendor/three.min.js"></script>
+<script src="./js/city3d.js"></script>
+<script src="./js/main.js"></script>
 </body>
 </html>
