@@ -1,1 +1,0 @@
-이 폴더에 001.jpg, 002.jpg ... 순서대로 넣고 js/config.js 의 sequences 에 장수를 적어 주세요.
