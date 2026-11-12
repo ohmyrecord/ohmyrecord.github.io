@@ -6,7 +6,7 @@ window.MD_CONTENT = {
 
   /* ---------- 사이트 이름 ---------- */
   siteName: "MYEONGDONG 2030",
-  teamName: "이상민 조",
+  teamName: "2030 명동 거리",
 
   /* ---------- ① 인트로 ---------- */
   intro: {
