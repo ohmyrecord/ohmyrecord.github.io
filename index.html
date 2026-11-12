@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MYEONGDONG 2030</title>
+<meta name="description" content="우리가 상상한 2030년의 명동">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="hd" id="hd">
+  <a class="hd-logo" href="#top" data-t="siteName">MYEONGDONG 2030</a>
+  <div class="hd-right">
+    <nav class="hd-nav"><a href="#world">World</a><a href="#products">Products</a></nav>
+    <a class="btn-primary" href="#products"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
+    <button class="hd-menu" id="menuOpen" type="button">Menu</button>
+  </div>
+</header>
+<div class="mnav" id="mnav">
+  <button class="mnav-close" id="menuClose" type="button">Close</button>
+  <a href="#world">World</a>
+  <a href="#relay">Relay</a>
+  <a href="#products">Products</a>
+  <a class="btn-primary" href="#products"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
+</div>
+
+<main>
+
+  <!-- ① 인트로 → ② 시간 흐름 → ③ 거리로 내려앉기 -->
+  <section class="pin" id="top" data-scene="A">
+    <div class="stage">
+      <div class="a-head" id="aHead">
+        <p class="t-label" data-t="intro.label"></p>
+        <h1 class="t-hero" data-t="intro.title"></h1>
+      </div>
+      <div class="a-map" id="aMap">
+        <div class="a-tilt" id="aTilt"><canvas id="mapA" aria-label="하늘에서 내려다본 명동 거리"></canvas></div>
+        <div class="a-street" id="aStreet"></div>
+        <div class="vignette"></div>
+      </div>
+      <div class="a-intro" id="aIntro">
+        <p class="t-body" data-t="intro.body"></p>
+        <div class="a-scroll"><span>SCROLL</span><i></i></div>
+      </div>
+      <div class="a-year panel" id="aYear">
+        <p class="t-label">YEAR</p>
+        <div class="a-year-num" id="yearNum">2026</div>
+        <p class="a-year-cap" id="yearCap"></p>
+        <div class="ticks" id="ticks"></div>
+        <div class="ticks-years"><span>2026</span><span>2030</span></div>
+      </div>
+      <div class="a-arrive panel" id="aArrive">
+        <p class="t-label" data-t="arrive.label"></p>
+        <h2 class="t-title" data-t="arrive.title"></h2>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ What Changed -->
+  <section class="world" id="world">
+    <div class="world-head">
+      <p class="t-label rv" data-t="world.label"></p>
+      <h2 class="t-title rv" style="--i:1" data-t="world.title"></h2>
+      <p class="t-body rv" style="--i:2" data-t="world.body"></p>
+    </div>
+    <div class="signs" id="signs"></div>
+  </section>
+
+  <!-- ⑤ Relay -->
+  <section class="pin" id="relay" data-scene="C">
+    <div class="stage">
+      <div class="r-bg" id="rBg"></div>
+      <div class="r-track" id="rTrack"></div>
+      <div class="r-seq" id="rSeq"><img id="rSeqImg" alt=""></div>
+      <div class="r-veil" id="rVeil"></div>
+      <div class="vignette"></div>
+      <div class="r-baton" id="rBaton"></div>
+      <div class="r-intro" id="rIntro">
+        <p class="t-label" data-t="relay.label"></p>
+        <h2 class="t-title" data-t="relay.title"></h2>
+      </div>
+      <div class="r-cap" id="rCap">
+        <div class="r-cap-top"><span class="r-cap-no" id="capNo"></span><span class="r-cap-count" id="capCount"></span></div>
+        <div class="r-cap-name" id="capName"></div>
+        <div class="chips">
+          <div class="chip"><b>입력 정보</b><span id="capIn"></span></div>
+          <div class="chip"><b>AI 판단</b><span id="capAi"></span></div>
+          <div class="chip"><b>물리적 반응</b><span id="capAct"></span></div>
+        </div>
+        <a class="btn-text" id="capLink" href="product-01.html"><span>자세히 보기</span><span class="arr">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ Across Myeongdong -->
+  <section class="pin" id="city" data-scene="D">
+    <div class="stage">
+      <div class="c-map">
+        <div class="c-tilt" id="cTilt">
+          <canvas id="mapD" aria-label="네 제품이 놓인 명동 지도"></canvas>
+          <div class="c-markers" id="cMarkers"></div>
+        </div>
+      </div>
+      <div class="vignette"></div>
+      <div class="c-street" id="cStreet"></div>
+      <div class="c-head panel" id="cHead">
+        <p class="t-label" data-t="city.label"></p>
+        <h2 class="t-title" data-t="city.title"></h2>
+        <p class="t-body" data-t="city.body"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑦ Products -->
+  <section class="products" id="products">
+    <p class="t-label rv" data-t="productsSection.label"></p>
+    <h2 class="t-title rv" style="--i:1" data-t="productsSection.title"></h2>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- ⑧ Outro -->
+  <section class="outro" id="outro">
+    <div class="o-art" id="oArt"></div>
+    <div class="o-text">
+      <p class="o-line rv" id="oLine"></p>
+      <a class="btn-primary rv" style="--i:1" href="#products"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>MYEONGDONG 2030 — Speculative Street, Digital Content Design</span>
+  <span>Typeface: Pretendard (SIL OFL)</span>
+</footer>
+
+<a class="to-top" id="toTop" href="#top" aria-label="맨 위로">↑</a>
+
+<!-- 순서 중요: 설정 → 문구 → 그림 → 지도 → 실행 -->
+<script src="js/config.js"></script>
+<script src="js/content.js"></script>
+<script src="js/art.js"></script>
+<script src="js/map.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
