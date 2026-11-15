@@ -1,1 +1,0 @@
-environment.glb (명동 공간 3D, 선택) 을 넣는 곳입니다.
