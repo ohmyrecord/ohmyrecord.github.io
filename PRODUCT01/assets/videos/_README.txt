@@ -1,1 +1,0 @@
-product-intro.mp4, product-interaction.mp4, product-scenario.mp4 (MP4 H.264) 를 넣는 곳입니다.
