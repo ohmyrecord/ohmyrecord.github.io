@@ -1,0 +1,15 @@
+(()=>{'use strict';
+const svg=document.querySelector('#postureDiagram');
+const upper=document.querySelector('#diagramUpper'),lower=document.querySelector('#diagramLower'),links=document.querySelector('#diagramLinks');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+let angle=0,raf=0;
+function paint(a){const x=150+90*Math.sin(a),y=180+90*Math.cos(a),endY=y+Math.sqrt(Math.max(0,110*110-(x-150)**2));links.setAttribute('d',`M150 180L${x} ${y}L150 ${endY}`);upper.setAttribute('transform','translate(150 180)');lower.setAttribute('transform',`translate(${x} ${y})`);}
+function move(mode){cancelAnimationFrame(raf);const start=angle,end=mode*Math.PI/4,t0=performance.now();document.querySelector('#diagramState').textContent=['기대기','걸터앉기','앉기'][mode];document.querySelector('#diagramPoleLed').setAttribute('fill',mode?'#79b840':'#cb3453');upper.querySelector('.joint-led').setAttribute('fill',mode?'#79b840':'#cb3453');lower.querySelector('.joint-led').setAttribute('fill',mode===2?'#79b840':'#cb3453');function frame(now){const t=reduced.matches?1:Math.min(1,(now-t0)/480),e=t*t*(3-2*t);angle=start+(end-start)*e;paint(angle);if(t<1)raf=requestAnimationFrame(frame);}raf=requestAnimationFrame(frame);}
+if(svg){paint(0);document.addEventListener('staygap:mode',e=>move(e.detail));document.querySelectorAll('[data-diagram-mode]').forEach(button=>{const activate=()=>document.querySelector(`[data-mode="${button.dataset.diagramMode}"]`).click();button.addEventListener('click',activate);button.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});});}
+// Reveal the text in reading order while scrolling; preserve emphasis colors.
+const blocks=[...document.querySelectorAll('#why h2,#why .lead')].map(block=>{
+ const walker=document.createTreeWalker(block,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+ const words=[];nodes.forEach(node=>{const color=getComputedStyle(node.parentElement).color.match(/[\d.]+/g).slice(0,3).map(Number),fragment=document.createDocumentFragment();node.textContent.split(/(\s+)/).forEach(part=>{if(!part)return;if(/^\s+$/.test(part)){fragment.append(document.createTextNode(part));return;}const word=document.createElement('span');word.className='scroll-read-word';word.textContent=part;fragment.append(word);words.push({word,color});});node.replaceWith(fragment);});return {block,words};});
+function updateReading(){blocks.forEach(({block,words})=>{const rect=block.getBoundingClientRect(),progress=reduced.matches?1:Math.max(0,Math.min(1,(innerHeight*.86-rect.top)/(innerHeight*.48+rect.height*.2)));words.forEach(({word,color},i)=>{const t=Math.max(0,Math.min(1,progress*(words.length+2)-i));word.style.color=`rgb(${color.map((v,j)=>Math.round([185,187,176][j]+(v-[185,187,176][j])*t)).join(',')})`;});});}
+let pending=false;function onScroll(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;updateReading();});}addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);updateReading();
+})();
