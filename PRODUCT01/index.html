@@ -9,7 +9,8 @@
 <link rel="stylesheet" href="./css/product.css">
 </head>
 <body class="pp" data-product="1">
-<!-- 개인 제품 사이트 v2 (PRODUCT 01 · STREET FOLD & FOLD MARK)
+<!-- 개인 제품 사이트 v9: 첫 화면(점 그림) → 장면(영상) → 왜(지도) → FOLD MARK 이야기 → 직접 쳐 보기 → STREET FOLD 이야기 → 직접 만져 보기 → 연결도 → 게임 → 크기 → 다음
+     (이전 설명) v2 (PRODUCT 01 · STREET FOLD & FOLD MARK)
      흐름: 첫 화면 → 이야기(실사 시나리오 자리) → 문제 → FOLD MARK(컨셉·스튜디오) → STREET FOLD(부위 탐색) → 작동 구조 → 크기·소재 → 다음
      3D 화면은 하나를 '지금 보이는 칸'으로 옮겨 가며 씁니다. -->
 <div class="pp-progress" aria-hidden="true"><i id="ppBar"></i></div>
@@ -19,6 +20,8 @@
     <img src="../assets/images/logo.svg" alt="" width="32" height="32"><span>2030 명동 거리</span>
   </a>
   <nav class="pp-nav" aria-label="이 페이지 안에서 이동">
+    <a href="#intro" data-nav="intro">장면</a>
+    <a href="#why" data-nav="why">목소리</a>
     <a href="#foldmark" data-nav="foldmark">FOLD MARK</a>
     <a href="#streetfold" data-nav="streetfold">STREET FOLD</a>
     <a href="#system" data-nav="system">작동 구조</a>
@@ -32,6 +35,39 @@
 <div class="pp-tip" id="ppTip" aria-hidden="true"></div>
 
 <main>
+  <!-- v9.1 첫 화면 (teamcafeteria 방식): 영상 위에 한 줄씩 — 스크롤하면 다음 줄 -->
+  <section class="pp-open night" id="top" data-sec="top">
+    <div class="pp-open-pin">
+      <video class="pp-open-bg" src="./assets/videos/cut01.mp4" poster="./assets/videos/cut01.jpg" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>
+      <div class="pp-open-shade" aria-hidden="true"></div>
+      <ol class="pp-chap" aria-hidden="true"><li>01</li><li>02</li><li>03</li><li>04</li><li>05</li></ol>
+      <div class="pp-open-t">
+        <p class="pp-eyebrow">PRODUCT 01 — 2030 명동 거리</p>
+        <h1 class="pp-open-h">STREET FOLD <span>&amp; FOLD MARK</span></h1>
+      </div>
+      <ol class="pp-open-lines" id="ppOpenLines">
+        <li>저녁 7시, 명동길 노점 앞.</li>
+        <li><b>38명</b>이 꼬치를 들고 서성입니다.</li>
+        <li>한 골목만 들어가면, 빈 테이블 <b>12개</b>.</li>
+        <li>걸어서 <b>1분</b>.</li>
+        <li>그 1분을 잇는 두 가지를 만들었습니다.</li>
+      </ol>
+      <a class="pp-scroll" href="#why"><i></i><span>스크롤</span></a>
+    </div>
+  </section>
+
+  <!-- v9.1 목소리 (teamcafeteria 방식): 사람의 말이 단어씩 나타나고 → 핵심 낱말이 화면을 채움 -->
+  <section class="pp-voices night" id="why" data-sec="why" style="--n:4">
+    <div class="pp-voices-pin" id="ppVoices">
+      <div class="pp-v-bg" aria-hidden="true"></div>
+      <div class="pp-v-q"><p class="pp-v-line" id="ppVLine"></p></div>
+      <div class="pp-v-key" id="ppVKey" aria-hidden="true"></div>
+      <p class="pp-v-who"><b>VOICE</b> <span id="ppVWho"></span><i id="ppVTime">00:00:00</i></p>
+      <p class="pp-v-note">2026 명동 현장 관찰을 바탕으로 재구성한 목소리</p>
+      <ol class="pp-chap pp-v-chap" id="ppVChap" aria-hidden="true"><li>01</li><li>02</li><li>03</li><li>04</li></ol>
+    </div>
+  </section>
+
   <!-- 01 한 편의 스크롤 영상 (v5) — 손그림 콘티 1~10 컷 그대로: 옆에서 본 3D · 손만 · 흐린 저녁 명동
        스크롤 위치가 곧 영상의 시간입니다. 주소 끝에 ?p=0.35 처럼 쓰면 그 순간에서 멈춘 채 열립니다. -->
   <section class="pp-film night" id="intro" data-sec="intro">
@@ -66,54 +102,29 @@
   <div class="pp-wave" id="ppWave" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path id="ppWaveP" d="M0 100 L0 60 Q50 0 100 60 L100 100Z"/></svg></div>
   <div class="pp-wave-band" aria-hidden="true"></div>
 
-  <!-- 03 문제 — 읽으며 밝아지는 문장 -->
-  <section class="pp-why" id="why" data-sec="why">
-    <p class="pp-eyebrow">WHY</p>
-    <p class="pp-read" id="ppRead">노점 앞은 붐비고, 한 골목만 들어가면 자리가 비어 있습니다. 꼬치를 산 사람은 먹을 곳을 찾아 서성이고, 쓰레기는 가장 가까운 노점에 쌓입니다. 필요한 건 더 큰 테이블이 아니라, 지금 비어 있는 자리로 이어 주는 한 장의 안내입니다.</p>
-    <div class="pp-why-pair">
-      <a href="#foldmark"><b>FOLD MARK</b><span>노점에서 — 자리를 알려 주는 작은 프린터</span></a>
-      <a href="#streetfold"><b>STREET FOLD</b><span>골목에서 — 펼쳐 먹고 접어 두는 테이블</span></a>
+  <!-- v9 FOLD MARK 이야기: 부품이 모여 하나가 되고 → 스크롤할 때마다 한 부위씩 -->
+  <section class="pp-story night" id="foldmark" data-sec="foldmark" data-story="fm" style="--n:5">
+    <div class="pp-story-pin">
+      <div class="pp-stage-box pp-story-stage" data-stage="fmStory" aria-label="FOLD MARK 3D — 부품이 모여 하나가 되고, 부위마다 기능을 보여 줍니다"></div>
+      <div class="pp-grid" aria-hidden="true"></div>
+      <header class="pp-story-hd"><p class="pp-eyebrow">01 — FOLD MARK</p><h2 class="pp-h2">툭 치면,<br>다음 자리가 인쇄됩니다.</h2></header>
+      <article class="pp-story-card is-intro" aria-live="polite"><p class="no"></p><p class="nm"></p><h3></h3><p class="d"></p></article>
+      <ol class="pp-story-ticks"><li><span>01</span>주먹 패드</li><li><span>02</span>윗면 틈</li><li><span>03</span>앞 빛 띠</li><li><span>04</span>뒤 뚜껑</li></ol>
+      <a class="pp-story-cta" href="#fmplay">직접 쳐 보기 <span aria-hidden="true">↓</span></a>
     </div>
   </section>
 
-  <!-- 흐르는 큰 글자 띠 -->
-  <div class="pp-marquee" aria-hidden="true"><div class="pp-marquee-in" id="ppMarq">
-    <span><b>툭,</b> 치면 길이 나오고 <i>—</i> 대면 판이 내려온다 <i>—</i> STREET FOLD <i>&amp;</i> FOLD MARK <i>—</i> </span>
-    <span><b>툭,</b> 치면 길이 나오고 <i>—</i> 대면 판이 내려온다 <i>—</i> STREET FOLD <i>&amp;</i> FOLD MARK <i>—</i> </span>
-  </div></div>
-
-  <!-- 04 FOLD MARK -->
-  <section class="pp-fm" id="foldmark" data-sec="foldmark">
-    <header class="pp-sec-hd">
-      <p class="pp-eyebrow">01 — FOLD MARK</p>
-      <h2 class="pp-h2">툭 치면,<br>다음 자리가 인쇄됩니다.</h2>
-      <p class="pp-lead">FOLD MARK는 노점 카운터에 두는 손바닥만 한 약도 프린터입니다. 사장님은 길을 설명하지 않아도 됩니다. 주먹으로 한 번 치면, AI가 지금 비어 있는 STREET FOLD를 골라 가는 길을 스티커 한 장에 담아 줍니다.</p>
-    </header>
-
-    <!-- 4-1 컨셉: 왼쪽 글이 지나가면 오른쪽 3D가 그 장면을 보여 줌 -->
-    <div class="pp-fm-steps">
-      <ol class="pp-fm-list" id="ppFmSteps">
-        <li data-step="0"><span class="n">01</span><h3>툭 — 주먹 홈</h3><p>아이보리 윗면 가운데의 움푹한 홈이 주먹이 닿는 자리입니다. 파낸 구멍이 아니라 면이 이어지며 완만하게 꺼져 있어, 기름 묻은 손으로도 바쁜 순간에도 누를 곳을 찾을 필요가 없습니다.</p></li>
-        <li data-step="1"><span class="n">02</span><h3>고르기 — AI 판단</h3><p>치는 순간 AI가 골목 테이블의 빈자리, 손님이 갈 방향, 걷는 시간을 함께 따져 한 자리를 고릅니다. 앞 끝의 호박색 빛 띠가 빠르게 깜박이면 고르는 중, 밝게 켜지면 출력 완료입니다.</p></li>
-        <li data-step="2"><span class="n">03</span><h3>인쇄 — 윗면 틈</h3><p>홈 바로 뒤, 차콜 뚜껑과 만나는 틈에서 약도 스티커가 50°로 올라옵니다. 주먹으로 친 방향 그대로 올라오기 때문에, 손 각도를 다시 맞출 필요 없이 그대로 뽑으면 됩니다.</p></li>
-        <li data-step="3"><span class="n">04</span><h3>건넴 — 트레이 옆면</h3><p>사장님은 스티커를 트레이 옆면에 붙여 건넵니다. 손님은 트레이를 든 채 약도를 보며 걷고, 도착하면 그 옆면을 테이블에 댑니다.</p></li>
-      </ol>
-      <div class="pp-fm-stage">
-        <div class="pp-stage-box" data-stage="fmSteps" aria-label="FOLD MARK 작동 단계 3D"></div>
-        <img class="pp-fm-tray" id="ppTray" src="./assets/images/tray-sticker.webp" alt="약도 스티커가 붙은 트레이">
-        <div class="pp-fm-stepno" id="ppStepNo" aria-hidden="true"><b>01</b><span>/ 04</span></div>
-      </div>
-    </div>
-
+  <section class="pp-fm" id="fmplay" data-sec="foldmark">
     <!-- 4-2 직접 해 보기 (스튜디오) -->
-    <div class="pp-studio" id="ppStudio">
+    <div class="pp-studio is-locked" id="ppStudio">
+      <div class="pp-lock"><p>위에서 FOLD MARK 소개를 끝까지 보면 열립니다.</p><button type="button" data-unlock="fm">소개 보러 가기 ↑</button><button type="button" class="ghost" data-skip="fm">그냥 열기</button></div>
       <div class="pp-studio-hd">
         <h3 class="pp-h3">직접 쳐 보세요.</h3>
-        <p>끌어서 돌려 보고, 가까이 보고, 윗면의 움푹한 홈을 눌러 스티커를 뽑아 보세요.</p>
+        <p>끌어서 돌려 보고, 가까이 보고, 앞쪽의 회색 주먹 패드를 눌러 스티커를 뽑아 보세요.</p>
       </div>
       <div class="pp-studio-main">
-        <div class="pp-stage-box pp-studio-view" data-stage="fmStudio" data-cursor="끌어서 돌리기 · 윗면 홈을 누르면 스티커" aria-label="FOLD MARK 3D. 끌어서 돌리고, 주먹 홈을 누르면 스티커가 나옵니다.">
-          <button type="button" class="pp-nudge" id="ppNudge" aria-label="주먹 홈을 툭 치기"><i></i><span>여기를 툭</span></button>
+        <div class="pp-stage-box pp-studio-view" data-stage="fmStudio" data-cursor="끌어서 돌리기 · 회색 패드를 누르면 스티커" aria-label="FOLD MARK 3D. 끌어서 돌리고, 주먹 홈을 누르면 스티커가 나옵니다.">
+          <button type="button" class="pp-nudge" id="ppNudge" aria-label="주먹 패드를 툭 치기"><i></i><span>여기를 툭</span></button>
         </div>
         <div class="pp-tools" role="toolbar" aria-label="FOLD MARK 조작">
           <button class="pp-tap" id="ppTap" type="button"><i aria-hidden="true"></i><span>툭 치기</span></button>
@@ -143,19 +154,26 @@
           <li style="--x:73%"><b>3</b>도착 · 유효 시각<small>이 시간까지 자리를 비워 둡니다</small></li>
           <li style="--x:92.5%"><b>4</b>대는 곳<small>트레이째 테이블에 대면 판이 내려옵니다</small></li>
         </ul>
-        <p class="pp-print-note" id="ppPrintNote">윗면 홈을 누르면 새 스티커가 나옵니다.</p>
+        <p class="pp-print-note" id="ppPrintNote">회색 패드를 누르면 새 스티커가 나옵니다.</p>
       </div>
     </div>
   </section>
 
-  <!-- 05 STREET FOLD — 부위를 눌러 보기 -->
-  <section class="pp-sf" id="streetfold" data-sec="streetfold">
-    <header class="pp-sec-hd">
-      <p class="pp-eyebrow">02 — STREET FOLD</p>
-      <h2 class="pp-h2">먹을 때 펼치고,<br>지나갈 때 접습니다.</h2>
-      <p class="pp-lead">골목 벽에 붙어 서 있는 폭 34cm의 기둥입니다. 쓰지 않을 때는 길을 막지 않고, 트레이를 대면 판이 내려와 한 사람의 식사 자리가 됩니다. 먹고 난 쓰레기도 같은 자리에서 끝납니다.</p>
-    </header>
-    <div class="pp-explore" id="ppExplore">
+  <!-- v9 STREET FOLD 이야기 -->
+  <section class="pp-story night" id="streetfold" data-sec="streetfold" data-story="sf" style="--n:7">
+    <div class="pp-story-pin">
+      <div class="pp-stage-box pp-story-stage" data-stage="sfStory" aria-label="STREET FOLD 3D — 부품이 모여 하나가 되고, 부위마다 기능을 보여 줍니다"></div>
+      <div class="pp-grid" aria-hidden="true"></div>
+      <header class="pp-story-hd"><p class="pp-eyebrow">02 — STREET FOLD</p><h2 class="pp-h2">먹을 때 펼치고,<br>지나갈 때 접습니다.</h2></header>
+      <article class="pp-story-card is-intro" aria-live="polite"><p class="no"></p><p class="nm"></p><h3></h3><p class="d"></p></article>
+      <ol class="pp-story-ticks"><li><span>01</span>노란 등</li><li><span>02</span>디스플레이</li><li><span>03</span>대는 곳</li><li><span>04</span>판</li><li><span>05</span>쓰레기통</li><li><span>06</span>카드 태그</li></ol>
+      <a class="pp-story-cta" href="#sfplay">직접 만져 보기 <span aria-hidden="true">↓</span></a>
+    </div>
+  </section>
+
+  <section class="pp-sf" id="sfplay" data-sec="streetfold">
+    <div class="pp-explore is-locked" id="ppExplore">
+      <div class="pp-lock"><p>위에서 STREET FOLD 소개를 끝까지 보면 열립니다.</p><button type="button" data-unlock="sf">소개 보러 가기 ↑</button><button type="button" class="ghost" data-skip="sf">그냥 열기</button></div>
       <div class="pp-stage-box pp-explore-view" data-stage="sf" data-cursor="끌어서 돌리기 · 점을 누르면 그 부분으로" aria-label="STREET FOLD 3D. 점이나 목록을 누르면 그 부분을 가까이 보여 줍니다."></div>
       <div class="pp-pins" id="ppPins"></div>
       <ol class="pp-parts" id="ppParts" aria-label="부위 목록">
@@ -183,15 +201,15 @@
     </div>
   </section>
 
-  <!-- 06 작동 구조 — 입력 → AI 판단 → 물리적 반응 -->
-  <section class="pp-sys night" id="system" data-sec="system">
+  <!-- v9 작동 구조: 큰 문장 대신 연결도 — 빛 한 점이 입력 → AI → 반응으로 흐름 -->
+  <section class="pp-sys2 night" id="system" data-sec="system">
     <p class="pp-eyebrow">03 — HOW IT CONNECTS</p>
-    <h2 class="pp-h2">사람은 한 번 치고, 한 번 댑니다.<br><span class="dim">나머지는 연결이 합니다.</span></h2>
-    <div class="pp-flow" id="ppFlow">
-      <div class="pp-flow-line" aria-hidden="true"><i id="ppFlowFill"></i></div>
-      <div class="pp-flow-col"><span>입력</span><h3>툭, 그리고 댐</h3><p>사장님의 주먹 한 번, 손님 트레이의 QR 한 번. 사람이 하는 일은 이 두 가지입니다.</p></div>
-      <div class="pp-flow-col"><span>AI 판단</span><h3>빈자리와 가는 길</h3><p>골목 테이블의 사용 상태, 손님이 갈 방향, 걷는 시간을 함께 보고 한 자리를 고릅니다. 얼굴이나 개인 정보는 쓰지 않습니다.</p></div>
-      <div class="pp-flow-col"><span>물리적 반응</span><h3>인쇄, 펼침, 기울임</h3><p>스티커가 나오고, 판이 내려오고, 수거할 때는 쓰레기통이 기울어 나옵니다. 판을 다시 올리는 것은 사람의 손입니다.</p></div>
+    <div class="pp-net" id="ppNet">
+      <svg class="pp-net-l" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true"><path id="ppNetP" d="M90 130 C 300 20, 400 240, 500 130 S 760 20, 910 130"/><path class="glow" d="M90 130 C 300 20, 400 240, 500 130 S 760 20, 910 130"/></svg>
+      <i class="pp-net-dot" id="ppNetDot" aria-hidden="true"></i>
+      <div class="pp-node" style="--x:9%"><span>입력</span><b>툭 · 댐</b><small>주먹 한 번, 트레이 한 번</small></div>
+      <div class="pp-node ai" style="--x:50%"><span>AI 판단</span><b>빈자리 · 가는 길</b><small>얼굴·개인 정보는 쓰지 않음</small></div>
+      <div class="pp-node" style="--x:91%"><span>물리적 반응</span><b>인쇄 · 펼침 · 기울임</b><small>판을 올리는 건 사람 손</small></div>
     </div>
   </section>
 
@@ -225,20 +243,19 @@
       </figure>
       <dl class="pp-spec-list">
         <div><dt>STREET FOLD</dt><dd>340 × 160 × 2,080 mm<small>판을 펼치면 앞으로 228 mm · 판 높이 약 980 mm</small></dd></div>
-        <div><dt>FOLD MARK</dt><dd>168 × 110 × 50 mm<small>앞 끝 높이 30 · 주먹 홈 약 82 × 66, 깊이 6 · 스티커 폭 58, 출구 60, 50° 출력</small></dd></div>
-        <div><dt>소재</dt><dd>무광 플라스틱 몸체<small>몸체 아이보리 · 뚜껑 차콜(뒤로 열어 카트리지 교체) · 조명 띠 호박색, 높이 15 · 두께 4.8</small></dd></div>
+        <div><dt>FOLD MARK</dt><dd>168 × 110 × 50 mm<small>앞 끝 높이 30 · 차콜 U자 홈 폭 54 → 38, 깊이 6 · 스티커 폭 58, 출구 60 · 50°로 위로 출력 (치는 각도 = 뽑는 각도)</small></dd></div>
+        <div><dt>소재</dt><dd>무광 플라스틱 몸체<small>몸체 아이보리 · 주먹 패드 차콜 · 뒤 뚜껑은 몸체와 같은 색(비스듬한 이음선, 뒤로 열어 카트리지 교체) · 앞 조명 띠 호박색</small></dd></div>
         <div><dt>설치</dt><dd>골목 벽 쪽 고정<small>보행 흐름을 막지 않는 깊이 160 mm</small></dd></div>
-        <div><dt>입력 · 출력</dt><dd>주먹 홈 · QR 대기<small>스티커 · 빛 선 · 디스플레이 · 번호등 · 판 · 쓰레기통 기울임</small></dd></div>
+        <div><dt>입력 · 출력</dt><dd>주먹 패드 · QR 대기<small>스티커 · 빛 선 · 디스플레이 · 번호등 · 판 · 쓰레기통 기울임</small></dd></div>
       </dl>
     </div>
   </section>
 
   <!-- 08 다음 -->
   <section class="pp-next night" id="next" data-sec="next">
-    <canvas class="pp-bokeh" data-bokeh aria-hidden="true"></canvas>
     <div class="pp-next-in">
       <p class="pp-eyebrow">BACK TO MYEONGDONG</p>
-      <h2 class="pp-h2">노점의 한 장면이,<br>골목의 머무름으로 이어집니다.</h2>
+      <h2 class="pp-h2">노점의 한 장면이,<br>골목의 머무름으로.</h2>
       <div class="pp-next-row">
         <a class="pp-btn" href="../index.html#select">거리 전체 보기 <span aria-hidden="true">↗</span></a>
         <a class="pp-next-link" id="ppNext" href="../PRODUCT02/index.html"><small>NEXT · PRODUCT 02</small><b id="ppNextName">다음 제품</b></a>
@@ -261,5 +278,6 @@
 <script src="./js/hand.js"></script>
 <script src="./js/film-cuts.js"></script>
 <script src="./js/product.js"></script>
+<script src="./js/story-2d.js"></script>
 </body>
 </html>

@@ -102,7 +102,7 @@ header.on-ivory,header.scrolled.on-ivory{background:#f4f1e5;color:#292d23}
 .hero-word{font-kerning:none}
 
 /* Hover-driven dissolve: all three photos stay decoded and share one frame. */
-.crowd-slides{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:url('../assets/images/crowd-1.webp') center/cover no-repeat}
+.crowd-slides{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:url('../assets/images/crowd-1.webp?v=poses') center/cover no-repeat}
 .system-photo .crowd-slide{position:absolute;inset:0;display:block;width:100%;height:100%;aspect-ratio:auto;object-fit:contain;object-position:center;opacity:0;transition:none;pointer-events:none}
 .system-photo .crowd-slide.is-active{opacity:1}
 .crowd-controls{z-index:2}.crowd-controls button{transition:background-color .25s,color .25s}
@@ -124,3 +124,40 @@ header.on-ivory,header.scrolled.on-ivory{background:#f4f1e5;color:#292d23}
 #postureDiagram,.diagram-instruction{opacity:1;transition:opacity .48s ease-in-out}
 .articulated-diagram.is-3d #postureDiagram,.articulated-diagram.is-3d .diagram-instruction{visibility:visible;opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){#detail3dStage,#postureDiagram,.diagram-instruction{transition:none}}
+
+.hero-product #modePhoto{opacity:1}
+
+#persona .portrait{height:auto;align-self:start;aspect-ratio:972/1618}
+#persona .portrait img{display:block;object-fit:contain}
+.usage-film{display:block;width:auto;height:auto;max-width:100%;max-height:78vh;margin:2.5rem auto 0;background:#10110f;border-radius:4px}
+#scenario .story-grid article{border-top:1px solid #494b40;padding-top:1rem}
+.usage-note{margin-top:4rem}
+
+.usage-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: clamp(2rem, 6vw, 7rem);
+  align-items: center;
+  margin-top: 3rem;
+}
+.usage-layout .usage-film { width: 100%; max-width: 26rem; margin: 0; justify-self: center; object-fit: contain; }
+.usage-layout .story-grid { grid-template-columns: 1fr; gap: 1.25rem; margin: 0; }
+.usage-layout .story-grid h3 { margin: .4rem 0; }
+.usage-layout .story-grid p { margin: 0; }
+@media (max-width: 650px) {
+  .usage-layout { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+#why {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 1.5rem clamp(2rem, 4vw, 5rem);
+}
+#why .why-heading { grid-row: 1 / 3; }
+#why .why-photo { display: block; width: 100%; height: auto; border-radius: 4px; }
+#why .lead { grid-column: 2; margin: 0; max-width: none; }
+@media (max-width: 760px) {
+  #why { grid-template-columns: 1fr; }
+  #why .why-heading, #why .lead { grid-row: auto; grid-column: 1; }
+}

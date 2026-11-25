@@ -1,11 +1,22 @@
 (()=>{'use strict';
 const svg=document.querySelector('#postureDiagram');
-const upper=document.querySelector('#diagramUpper'),lower=document.querySelector('#diagramLower'),links=document.querySelector('#diagramLinks');
+const upper=document.querySelector('#diagramUpper'),lower=document.querySelector('#diagramLower');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-let angle=0,raf=0;
-function paint(a){const x=150+90*Math.sin(a),y=180+90*Math.cos(a),endY=y+Math.sqrt(Math.max(0,110*110-(x-150)**2));links.setAttribute('d',`M150 180L${x} ${y}L150 ${endY}`);upper.setAttribute('transform','translate(150 180)');lower.setAttribute('transform',`translate(${x} ${y})`);}
-function move(mode){cancelAnimationFrame(raf);const start=angle,end=mode*Math.PI/4,t0=performance.now();document.querySelector('#diagramState').textContent=['기대기','걸터앉기','앉기'][mode];document.querySelector('#diagramPoleLed').setAttribute('fill',mode?'#79b840':'#cb3453');upper.querySelector('.joint-led').setAttribute('fill',mode?'#79b840':'#cb3453');lower.querySelector('.joint-led').setAttribute('fill',mode===2?'#79b840':'#cb3453');function frame(now){const t=reduced.matches?1:Math.min(1,(now-t0)/480),e=t*t*(3-2*t);angle=start+(end-start)*e;paint(angle);if(t<1)raf=requestAnimationFrame(frame);}raf=requestAnimationFrame(frame);}
-if(svg){paint(0);document.addEventListener('staygap:mode',e=>move(e.detail));document.querySelectorAll('[data-diagram-mode]').forEach(button=>{const activate=()=>document.querySelector(`[data-mode="${button.dataset.diagramMode}"]`).click();button.addEventListener('click',activate);button.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});});}
+function paint(mode){
+ const label=mode===1?'위 버튼 · 기대기로 돌아가기':'위 버튼 · 걸터앉기';
+ document.querySelector('.diagram-instruction').textContent=label+'  /  아래 버튼 · 앉기';
+ upper.setAttribute('aria-label',label);
+
+}
+if(svg){
+ paint(0);
+ document.addEventListener('staygap:mode',e=>paint(e.detail));
+ for(const button of [upper,lower]){
+   const activate=()=>window.pressStaygapJoint(Number(button.dataset.diagramMode));
+   button.addEventListener('click',activate);
+   button.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});
+ }
+}
 // Reveal the text in reading order while scrolling; preserve emphasis colors.
 const blocks=[...document.querySelectorAll('#why h2,#why .lead')].map(block=>{
  const walker=document.createTreeWalker(block,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);

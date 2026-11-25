@@ -70,7 +70,14 @@
       <h2 class="t-title rv" style="--i:1" data-t="world.title"></h2>
       <p class="t-body rv" style="--i:2" data-t="world.body"></p>
     </div>
-    <div class="signs" id="signs"></div>
+    <!-- v9.1: 밤거리를 걸어가면 간판이 하나씩 '네온처럼' 켜짐 -->
+    <div id="signSequence" class="ws2">
+      <div class="ws2-pin">
+        <div class="ws2-bg" aria-hidden="true"></div>
+        <div class="ws2-view"><div class="ws2-world" id="signs"><div class="ws2-floor" aria-hidden="true"></div></div></div>
+        <ol class="ws2-dots" id="wsDots" aria-hidden="true"></ol>
+      </div>
+    </div>
   </section>
 
   <!-- ⑤ Relay -->
@@ -101,7 +108,7 @@
     </div>
   </section>
 
-  <!-- ⑦ 제품 고르기: 목록이나 지도에서 고르면 그 골목으로 내려가고, 이전/다음으로 바로 옆 제품으로 이동 -->
+  <!-- ⑦ 제품 고르기 (v8): 받침대 위의 작은 명동 — 끌어서 돌리기 · 도시 위 휠 확대 · 낮/밤 -->
   <section class="select" id="select">
     <div class="sel-stage" id="sStage">
       <canvas id="mapS" aria-hidden="true"></canvas>
@@ -112,30 +119,24 @@
       <header class="sel-head2" id="sHead">
         <p class="t-label" data-t="select.label"></p>
         <h2 class="sel-title" data-t="select.title"></h2>
-        <p class="sel-drag"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M15.5 7.5A6 6 0 1 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M16.4 3.6v4.3h-4.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>지도를 끌어서 360° 돌려 보세요</p>
+        <p class="sel-drag" id="sHint"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M15.5 7.5A6 6 0 1 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M16.4 3.6v4.3h-4.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>끌어서 360° 돌리기 · 도시 위에서 휠로 확대</p>
+        <button type="button" class="sel-night" id="sNight" aria-pressed="false"><i aria-hidden="true"></i><span>밤으로 보기</span></button>
       </header>
       <div class="sel-pop" id="sPop" aria-live="polite">
         <span class="sel-pop-no" id="sPopNo"></span>
         <b class="sel-pop-name" id="sPopName"></b>
         <p class="sel-pop-line" id="sPopLine"></p>
-        <button type="button" class="sel-pop-go" id="sPopGo">골목으로 들어가기 <span aria-hidden="true">↘</span></button>
+        <button type="button" class="sel-pop-go" id="sPopGo">자세히 보기 <span aria-hidden="true">↘</span></button>
       </div>
       <nav class="sel-dock" id="sList" aria-label="제품 고르기">
         <ol class="sel-items" id="sItems"></ol>
-        <button class="sel-replay" id="sReplay" type="button" title="동선 다시 보기"><span aria-hidden="true">↻</span><span>동선 다시 보기</span></button>
       </nav>
-      <!-- v4.2: 예전 'Across Myeongdong' 장면을 여기로 합침 — 제품에서 다음 제품까지 동선을 따라 카메라가 이동 -->
-      <div class="sel-tour" id="sTour" aria-live="polite">
-        <p class="t-label">네 제품은 명동 곳곳에서 이어진다</p>
-        <div class="sel-tour-row"><i id="sTourDot"></i><span id="sTourTxt"></span></div>
-        <div class="sel-tour-bar" aria-hidden="true"><i id="sTourBar"></i></div>
-        <button class="sel-tour-skip" id="sTourSkip" type="button">건너뛰기 <span>— 누르면 다시 스크롤할 수 있어요</span></button>
-      </div>
       <div class="sel-detail" id="sDetail" aria-hidden="true">
         <div class="sel-img" id="sImgWrap"><img id="sImg" alt=""><div class="sel-view" id="sView" aria-label="잡고 돌려 볼 수 있는 3D 제품"></div><p class="sel-hint">드래그해서 돌려 보기</p></div>
         <div class="sel-panel panel">
           <div class="r-cap-top"><span class="r-cap-no" id="sNo"></span><span class="r-cap-count" id="sCount"></span></div>
           <div class="r-cap-name" id="sName"></div>
+          <p class="sel-where" id="sWhere"></p>
           <p class="sel-line" id="sLine"></p>
           <div class="chips">
             <div class="chip"><b>입력 정보</b><span id="sIn"></span></div>
@@ -161,20 +162,8 @@
     <div class="grid" id="grid"></div>
   </section>
 
-  <!-- ⑨ Outro -->
-  <section class="outro" id="outro">
-    <div class="o-art" id="oArt"></div>
-    <div class="o-text">
-      <p class="o-line rv" id="oLine"></p>
-      <a class="btn-primary rv" style="--i:1" href="#select"><span data-t="outro.button">제품 보기</span><span class="arr">↗</span></a>
-    </div>
-  </section>
 </main>
 
-<footer class="footer">
-  <span>2030 명동 거리 · MYEONGDONG 2030 — <a href="../index.html">전체 프로젝트</a></span>
-  <span>Typeface: Pretendard (SIL OFL)</span>
-</footer>
 
 <a class="to-top" id="toTop" href="#top" aria-label="맨 위로">↑</a>
 
@@ -186,8 +175,10 @@
 <script src="./js/vendor/three.min.js"></script>
 <script src="./js/vendor/three-addons.js"></script>
 <script src="./js/people.js"></script>
+<script src="./js/rail-side-motion.js"></script>
 <script src="./js/models/crowd.js"></script>
 <script src="./js/city3d.js"></script>
+<script src="./js/select-diorama.js"></script>
 <script src="./js/main.js"></script>
 </body>
 </html>

@@ -608,3 +608,138 @@ html.is-locked, html.is-locked body { overscroll-behavior: none; }
 .r3d-dim { position: absolute; inset: 0; z-index: 3; background: #E9E6DD; opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; }
 .r3d-dim span { color: #61645D; font-size: 14px; letter-spacing: .08em; opacity: 0; transition: opacity .3s; }
 .r3d-dim.is-wait span { opacity: .85; }
+
+/* v8: 2026→2030 연도 상자 — 화면의 1/4 이상, 글씨 위계, 살짝 비치는 유리 */
+.a-year.panel {
+  width: clamp(380px, 34vw, 640px); min-height: 56vh; padding: clamp(28px, 3vw, 54px);
+  display: flex; flex-direction: column; justify-content: center;
+  background: linear-gradient(150deg, rgba(255, 253, 244, .62), rgba(246, 241, 226, .36));
+  -webkit-backdrop-filter: blur(18px) saturate(1.25); backdrop-filter: blur(18px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, .7); border-radius: 26px;
+  box-shadow: 0 30px 80px -30px rgba(40, 36, 20, .35), inset 0 1px 0 rgba(255, 255, 255, .85), inset 0 -1px 0 rgba(0, 0, 0, .04);
+}
+.a-year .t-label { font-size: clamp(12px, .8vw, 15px); letter-spacing: .22em; color: #6F6A58; margin-bottom: .6em; }
+.a-year-num { font-size: clamp(88px, 9.2vw, 176px); letter-spacing: -.05em; }
+.a-year-cap { font-size: clamp(17px, 1.32vw, 24px); font-weight: 650; color: #3B3A33; line-height: 1.55; margin: .9em 0 1.6em; min-height: 3.1em; max-width: 24em; text-wrap: pretty; }
+.a-year .ticks { gap: 8px; }
+.a-year .ticks span { height: 5px; border-radius: 3px; background: rgba(60, 58, 48, .14); }
+.a-year .ticks-years { font-size: clamp(13px, .9vw, 16px); color: #5B584A; margin-top: 12px; }
+@media (max-width: 768px) {
+  .a-year.panel { width: auto; min-height: 0; padding: 22px; border-radius: 20px; }
+  .a-year-num { font-size: 15vw; }
+  .a-year-cap { font-size: 15px; margin: .5em 0 .9em; }
+}
+
+/* v8.1 What Changed (깃허브 라이트 방식) — 간판이 하나씩 밝혀지고, 뒤에는 흐릿한 명동 거리 사진 */
+#signSequence { margin-top: 5vw; position: relative; }
+#signs { margin: 0; isolation: isolate; }
+#signs .ws-bg { position: absolute; z-index: -1; pointer-events: none;
+  left: calc(-1 * var(--side) - 2vw); right: calc(-1 * var(--side) - 2vw); top: -9vh; bottom: -7vh;
+  background: url(../assets/images/world-street.webp) center 38% / cover no-repeat;
+  opacity: .19; filter: grayscale(.5) sepia(.2) blur(2px) contrast(.9);
+  -webkit-mask-image: radial-gradient(120% 95% at 50% 45%, #000 55%, transparent 100%); mask-image: radial-gradient(120% 95% at 50% 45%, #000 55%, transparent 100%); }
+#signs .sign { opacity: .4; filter: grayscale(.8) blur(.8px); transition: opacity .32s ease, filter .32s ease, transform .32s ease; }
+#signs .sign .sign-in { box-shadow: 0 .6vw 1.6vw rgba(40, 36, 20, .16); }
+#signs .sign.reading { opacity: 1; filter: none; z-index: 1; }
+#signs .reading .sign-in { box-shadow: 0 0 2.4vw rgba(247, 201, 49, .52), 0 .8vw 2vw rgba(81, 66, 29, .2), inset 0 0 0 1px rgba(244, 209, 65, .65); }
+#signs .sign-in::before, #signs .sign-in::after { background: rgba(60, 58, 48, .55); }   /* 간판을 매단 줄 */
+@media (min-width: 769px) {
+  #signSequence { height: 300vh; }
+  #signs { position: sticky; top: 14vh; height: 80vh; }
+  #signs .sign-in { font-size: clamp(13px, min(1.65vw, 2.65vh), 36px); padding: min(1.8vw, 2vh); }
+  #signs .sign.v .sign-in { max-height: 58vh; }
+  #signs .sign:last-child .sign-in { max-height: 31vh; }
+}
+@media (max-width: 768px) {
+  #signs { display: flex; flex-direction: column; gap: 3.75rem; }
+  #signs { position: relative; }
+  #signs .ws-bg { left: -24px; right: -24px; top: -40px; bottom: -40px; opacity: .18; }
+  #signs .sign { width: fit-content; max-width: 94%; }
+  #signs .sign:nth-child(odd) { align-self: flex-end; }
+  #signs .sign.v .sign-in { writing-mode: horizontal-tb; }
+  #signs .sign.v small { margin: 0 0 1em; }
+}
+@media (prefers-reduced-motion: reduce) { #signs .sign { transition: none; } }
+
+/* ===== v8.2 Choose a Product — 받침대 위의 작은 명동 ===== */
+.select { height: 210vh; }                               /* 아래 110vh 동안 건물이 하나둘 땅으로 들어감 */
+.sel-stage { position: sticky; top: 0; background: radial-gradient(120% 90% at 50% 58%, #F7F0DC 0%, #EBE1C6 55%, #DCCFAE 100%); transition: background .9s var(--ease-out); }
+.sel-stage.is-night { background: radial-gradient(120% 90% at 50% 58%, #2A2B45 0%, #171828 60%, #0D0D18 100%); }
+.sel-stage #mapS { display: none; }
+.sel-stage.no-3d #mapS { display: block; }
+.sel-3d .sel-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; cursor: grab; }
+.sel-stage .vignette { pointer-events: none; }
+.sel-stage.is-night .sel-head2, .sel-stage.is-night .sel-drag { color: #F3EEDF; }
+.sel-stage.is-night .sel-head2 .t-label { color: var(--point); }
+.sel-night { margin-top: 1em; display: inline-flex; align-items: center; gap: .6em; border: 1px solid rgba(47,49,43,.18); border-radius: 999px; padding: .62em 1.15em .62em .7em;
+  background: rgba(255,255,255,.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); font: inherit; font-size: var(--fs-small); font-weight: 700; cursor: pointer; pointer-events: auto;
+  transition: background var(--t-hover), color var(--t-hover), border-color var(--t-hover); }
+.sel-night i { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FFF6C8, #F2B53B); box-shadow: 0 0 12px rgba(242,181,59,.7); position: relative; overflow: hidden; transition: background .6s, box-shadow .6s; }
+.sel-night i::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: #2A2B45; transform: translate(70%, -40%); transition: transform .6s var(--ease-out); }
+.sel-night[aria-pressed="true"] { background: rgba(30,31,52,.6); color: #F3EEDF; border-color: rgba(255,255,255,.2); }
+.sel-night[aria-pressed="true"] i { background: #F3EEDF; box-shadow: 0 0 14px rgba(243,238,223,.6); }
+.sel-night[aria-pressed="true"] i::after { transform: translate(38%, -22%); background: #1E1F34; }
+.sel-night:hover { border-color: var(--point); }
+.sel-item small { display: block; font-size: 12px; font-weight: 500; opacity: .62; margin-top: .15em; white-space: nowrap; }
+.sel-stage.is-night .sel-dock { background: rgba(30,31,52,.55); color: #F3EEDF; border-color: rgba(255,255,255,.12); }
+.sel-stage.is-night .sel-item { color: #F3EEDF; }
+.sel-stage.is-night .sel-mk { background: rgba(23,24,40,.82); color: #F3EEDF; }
+.sel-mk { transition: background var(--t-hover), color var(--t-hover), scale .4s var(--ease-out), box-shadow .4s var(--ease-out), opacity .35s; }
+@media (max-width: 768px) { .select { height: 190vh; } .sel-night { margin-top: .6em; padding: .5em .9em .5em .55em; } .sel-item small { display: none; } }
+.sel-where { margin: .2em 0 .5em; display: inline-flex; align-items: center; gap: .4em; font-size: var(--fs-small); font-weight: 700; color: var(--ink); background: rgba(242,217,75,.35); border-radius: 999px; padding: .3em .8em; }
+.sel-where::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+.sel-stage.is-night .sel-head2::before { opacity: 0; }
+.sel-head2::before { transition: opacity .8s; }
+.sel-stage.is-night .sel-head2 .sel-title { color: #F7F2E4; text-shadow: 0 2px 30px rgba(0,0,0,.5); }
+.sel-stage.is-night .sel-drag { background: rgba(30,31,52,.7); color: #F3EEDF; }
+.sel-stage.is-night .sel-mk { background: rgba(255,253,244,.92); color: var(--ink); box-shadow: 0 0 0 1px rgba(242,217,75,.6), 0 0 22px rgba(242,217,75,.45); }
+.sel-stage.is-night .sel-mk span b { color: #B08A00; }
+
+/* v8.3 제품 카드: 사진과 글 상자가 겹치지 않게 — 사진은 위, 글은 아래 */
+.card { aspect-ratio: auto; display: flex; flex-direction: column; }
+.card img { position: relative; inset: auto; height: auto; aspect-ratio: 4 / 3; object-fit: contain; padding: 1vw 1vw 0; flex: none; }
+.card-info { position: relative; left: auto; right: auto; bottom: auto; margin: .8vw 1vw 1vw; flex: 1; }
+@media (max-width: 768px) { .card img { aspect-ratio: 16 / 10; padding: 12px 12px 0; } .card-info { margin: 10px 12px 12px; } }
+/* v9.1: 고정 구간을 줄여 스크롤과 솟기·들어가기가 자연스럽게 맞물리게 */
+.select { height: 175vh; }
+@media (max-width: 768px) { .select { height: 165vh; } }
+
+/* ===== v9.1 What Changed — 밤거리를 걸으면 간판 하나가 네온처럼 켜짐 ===== */
+.ws2 { position: relative; height: 560vh; margin-top: 4vw; }
+.ws2-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #0B0B0C; }
+.ws2-bg { position: absolute; inset: -4%; background: url(../assets/images/world-street.webp) center / cover no-repeat; opacity: .14; filter: grayscale(.6) blur(6px) brightness(.55); }
+.ws2-pin::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 60% at 50% 55%, transparent 30%, rgba(11,11,12,.92) 100%); }
+.ws2-view { position: absolute; inset: 0; perspective: 900px; perspective-origin: 50% 46%; }
+.ws2-world { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; }
+/* 길바닥: 소실점으로 모이는 선 */
+.ws2-floor { position: absolute; left: -60vw; top: 20vh; width: 120vw; height: 7600px; transform-origin: 50% 0; transform: rotateX(90deg) translateZ(0); transform-style: preserve-3d;
+  background: linear-gradient(90deg, transparent 0 22%, rgba(255,255,255,.07) 22% 22.2%, transparent 22.2% 77.8%, rgba(255,255,255,.07) 77.8% 78%, transparent 78%),
+              repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 2px, transparent 2px 220px);
+  -webkit-mask: linear-gradient(180deg, #000 0%, transparent 70%); mask: linear-gradient(180deg, #000 0%, transparent 70%); }
+.ws2-floor { transform: translate3d(0, 0, 0) rotateX(90deg); }
+.ws2-sign { position: absolute; left: 0; top: 0; transform-style: preserve-3d; transition: opacity .4s ease; }
+.ws2-frame { position: relative; transform: translate(-50%, -50%); width: min(560px, 62vw); padding: 22px; border-radius: 34px;
+  border: 3px solid #3a3a3d; box-shadow: inset 0 0 0 10px #161618, 0 0 0 10px #161618; background: rgba(20,20,22,.6); transition: border-color .2s; }
+.ws2-card { border-radius: 16px; padding: 26px 30px 30px; background: linear-gradient(180deg, #1e1e21, #151517); border: 1px solid rgba(255,255,255,.08); text-align: center; color: #5c5c60; transition: color .5s ease; }
+.ws2-card small { display: block; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: clamp(11px, .9vw, 14px); font-weight: 700; letter-spacing: .24em; color: #4a4a4e; transition: color .5s ease; }
+.ws2-card p { margin: 0; font-size: clamp(18px, 1.9vw, 32px); line-height: 1.38; font-weight: 700; letter-spacing: -.02em; word-break: keep-all; }
+.ws2-pole { position: absolute; left: 0; top: 50%; width: 3px; height: 70vh; transform: translateX(-50%); background: linear-gradient(#3a3a3d, rgba(58,58,61,0)); }
+/* 켜진 간판: 하얀 네온 관이 '지직' 하고 켜졌다가 은은하게 숨쉼 */
+.ws2-sign.reading .ws2-frame { border-color: #F4F2EA; animation: wsIgnite .9s steps(1) 1, wsHum 3.2s ease-in-out .9s infinite;
+  box-shadow: inset 0 0 0 10px #1b1b1d, 0 0 0 10px #1b1b1d, 0 0 0 13px rgba(244,242,234,.95), 0 0 34px 12px rgba(244,242,234,.32), inset 0 0 40px rgba(244,242,234,.12); }
+.ws2-sign.reading .ws2-card { color: #F4F2EA; }
+.ws2-sign.reading .ws2-card small { color: #F2C94C; }
+.ws2-sign.reading .ws2-pole { background: linear-gradient(#d9d6cc, rgba(217,214,204,0)); }
+@keyframes wsIgnite { 0% { filter: brightness(.2); } 12% { filter: brightness(1.3); } 20% { filter: brightness(.3); } 34% { filter: brightness(1.1); } 42% { filter: brightness(.5); } 56% { filter: brightness(1); } 100% { filter: brightness(1); } }
+@keyframes wsHum { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.08); } }
+.ws2-dots { position: absolute; right: clamp(16px, 3vw, 40px); top: 50%; transform: translateY(-50%); margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; z-index: 2; }
+.ws2-dots li { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.18); transition: background .3s, transform .3s; }
+.ws2-dots li.is-past { background: rgba(255,255,255,.45); }
+.ws2-dots li.is-on { background: #F2C94C; transform: scale(1.6); box-shadow: 0 0 10px rgba(242,201,76,.8); }
+@media (max-width: 768px) { .ws2 { height: 480vh; } .ws2-frame { width: 78vw; padding: 14px; border-radius: 24px; } .ws2-card { padding: 18px; } }
+@media (prefers-reduced-motion: reduce) { .ws2-sign.reading .ws2-frame { animation: none; } }
+#signs.ws2-world { position: absolute !important; top: 50% !important; left: 50%; height: 0 !important; width: 0; display: block !important; margin: 0; isolation: auto; }
+.ws2 { width: 100vw; margin-left: calc(50% - 50vw); }
+#signSequence.ws2 { height: 520vh; }
+.ws2-sign { transition: none; }
+@media (max-width: 768px) { #signSequence.ws2 { height: 460vh; } }

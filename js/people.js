@@ -15,6 +15,7 @@
   var ORDER = ["hip", "spine", "head", "legL", "kneeL", "legR", "kneeR", "armL", "elbL", "armR", "elbR"];
   function buf(s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u.buffer; }
   MX.IDLE = "breathidle";
+  MX.CALM = .65;
   function apronMaterial(col) {
     var m = new T.MeshStandardMaterial({ color: col, roughness: .8, side: T.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     m.onBeforeCompile = function (sh) {
@@ -153,7 +154,10 @@
         var idleT = r.poseLive !== false ? ((performance.now() / (1000 * (r.poseSec || (ic && ic.dur) || 6)) + r.t) % 1 + 1) % 1 : (r.poseAt || .02);
         if (r.gait && a > 0) { var gc = clip(tp, r.gait); if (gc) walk = gc; }
         for (var k = 0; k < bones.length; k++) bones[k].quaternion.copy(q0[k]);
-        if (idle && a < 1) sample(idle, idleT, pose, 1); if (walk && a > 0) sample(walk, walkT, pose, a >= 1 || !idle ? 1 : a);
+        if (idle && a < 1) { sample(idle, idleT, pose, 1);
+          // v8.1: 서 있을 때 좌우로 크게 흔들리지 않게 — 한 순간의 자세 쪽으로 65% 끌어당겨 움직임 폭을 1/3 로 줄임
+          if (r.poseLive !== false && MX.CALM > 0) sample(idle, r._calmT == null ? (r._calmT = .5) : r._calmT, pose, MX.CALM); }
+        if (walk && a > 0) sample(walk, walkT, pose, a >= 1 || !idle ? 1 : a);
         Object.keys(pose).forEach(function (k2) { if (k2 !== "hip") bones[k2].quaternion.copy(pose[k2]); });
         var hb = bones[tp.hip]; if (pose.hip) hb.position.copy(pose.hip); else hb.position.copy(p0[tp.hip]);
         // 2) 장면 동작 (몸 기준 축으로 넣은 회전) 을 지금 자세 위에 덧붙임

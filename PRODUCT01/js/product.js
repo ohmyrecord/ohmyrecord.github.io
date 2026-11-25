@@ -361,7 +361,9 @@
         m.roughness = ROUGH[n] != null ? ROUGH[n] : .55; m.metalness = 0;
         if (fm && n === "플라스틱") m.roughness = .5;
         if (fm && n === "플라스틱 (1)") m.roughness = .66;
-        if (n === "페인트 (1)") { m.clearcoat = 1; m.clearcoatRoughness = .08; }
+        if (n === "페인트 (1)" && !fm) { m.clearcoat = 1; m.clearcoatRoughness = .08; }
+        if (fm && n === "페인트 (1)") { m.roughness = .48; m.clearcoat = .25; m.clearcoatRoughness = .5; }   // v9 새 FOLD MARK: 아이보리 몸체 (무광에 가까운 단단한 플라스틱)
+        if (fm && n === "페인트") { m.roughness = .78; }                                                      // v9: 차콜 주먹 패드 (고무 느낌)
         if (n === "플라스틱" && !fm) { m.clearcoat = .2; m.clearcoatRoughness = .4; }
         if (m0.emissive && (m0.emissive.r + m0.emissive.g + m0.emissive.b) > 0) { m.emissive = m0.emissive.clone(); m.emissiveIntensity = .8; m.color.set(0x2a2a20); }
         m.name = n; o.material = m; o.castShadow = true; o.receiveShadow = true;
@@ -453,6 +455,8 @@
           Object.keys(XG).forEach(function (k) { XG[k].position.set(XO[k][0] * e, XO[k][1] * e, XO[k][2] * e); var b = M.P0[k]; M.P[k] = [b[0] + XO[k][0] * e, b[1] + XO[k][1] * e, b[2] + XO[k][2] * e, b[3], b[4], b[5]]; });
           plate.position.set(PB.plate.x, PB.plate.y + XO.plate[1] * e, PB.plate.z + XO.plate[2] * e);
           bin.position.set(PB.bin.x, PB.bin.y + XO.bin[1] * e, PB.bin.z + XO.bin[2] * e);
+          // v9: 조립 연출 — 부품이 멀리서 날아와 제자리에 맞물림 (M.asm[k] = [dx, dy, dz, 회전])
+          if (M.asm) Object.keys(M.asm).forEach(function (k) { var a = M.asm[k], o = k === "plate" ? plate : k === "bin" ? bin : XG[k]; if (!o || !a) return; o.position.x += a[0]; o.position.y += a[1]; o.position.z += a[2]; o.rotation.y = a[3] || 0; });
         };
         M.setScreen = function (mode) { M.mode = mode; drawScreen(scv, mode, 12); stex.needsUpdate = true; };
         M.redraw = function () { drawScreen(scv, M.mode, 12); stex.needsUpdate = true; var c2 = lampCanvas(12); lcv.getContext("2d").clearRect(0, 0, 512, 200); lcv.getContext("2d").drawImage(c2, 0, 0); ltex.needsUpdate = true; };
@@ -484,11 +488,11 @@
       getModel("foldmark", function (root) {
         upgrade(root, true);
         var wrap = new T.Group(), squash = new T.Group(); wrap.add(squash); squash.add(root);
-        root.position.set(-.084, 0, 0);
+        root.position.set(-.085, 0, 0);   // v9 새 모델: 길이 170 mm (뒤 x=0 → 앞 빛 띠 x=.17)
         var pad = [], band = [];
         root.traverse(function (o) {
           if (!o.isMesh) return;
-          if (o.userData.mn === "플라스틱 (1)") pad.push(o);
+          if (o.userData.mn === "페인트" || o.userData.mn === "플라스틱 (1)") pad.push(o);
           if (o.userData.mn === "발광") band.push(o);
           if (!o.userData.mn) { var b = new T.Box3().setFromObject(o); if (b.max.y > .052) o.visible = false; } // 모델 안 임시 스티커 면은 숨김
         });
@@ -496,12 +500,14 @@
         if (bandMat) { bandMat.emissive = new T.Color(0xFFB547); bandMat.emissiveIntensity = .25; bandMat.color.set(0x3a3a2a); }   // 조명 띠: 호박색
         // 주먹 홈 = 아이보리 윗면의 움푹 파인 곳 (도면: 약 82 × 66 mm, 깊이 6) — 위에서 쏴서 홈 바닥 높이를 찾음
         root.updateMatrixWorld(true);
-        var REC = new T.Vector3(.098, .04, 0), rcY = new T.Raycaster(new T.Vector3(.098 - .084, .3, 0), new T.Vector3(0, -1, 0));
+        var REC = new T.Vector3(.118, .03, 0), rcY = new T.Raycaster(new T.Vector3(.118 - .085, .3, 0), new T.Vector3(0, -1, 0));   // v9: 차콜 패드 가운데 (앞으로 기울어진 면)
+        var SLOPE = -.27;   // 패드 면의 기울기 (뒤 높이 48 mm → 앞 24 mm)
         var hy = rcY.intersectObject(root, true).filter(function (h) { return h.object.visible; })[0]; if (hy) REC.y = hy.point.y;
         var gcv = screenCanvas(128, 128), gg = gcv.getContext("2d"), gr = gg.createRadialGradient(64, 64, 0, 64, 64, 64);
         gr.addColorStop(0, "rgba(242,217,75,.85)"); gr.addColorStop(.6, "rgba(242,217,75,.35)"); gr.addColorStop(1, "rgba(242,217,75,0)"); gg.fillStyle = gr; gg.fillRect(0, 0, 128, 128);
         var glow = new T.Mesh(new T.PlaneGeometry(.085, .07), new T.MeshBasicMaterial({ map: new T.CanvasTexture(gcv), transparent: true, opacity: 0, depthWrite: false, toneMapped: false }));
-        glow.rotation.x = -Math.PI / 2; glow.position.set(REC.x - .084, REC.y + .0025, 0); squash.add(glow);
+        var padTilt = new T.Group(); padTilt.position.set(REC.x - .085, REC.y + .0025, 0); padTilt.rotation.z = SLOPE; squash.add(padTilt);
+        glow.rotation.x = -Math.PI / 2; padTilt.add(glow);
         // 스티커 띠: 윗면 틈(x .0605, y .0498)에서 앞쪽(+x)으로 비스듬히 나오며 끝이 처짐
         var strip = null;
         if (!opt || !opt.noStrip) {
@@ -516,7 +522,7 @@
         function layStrip() {
           if (!strip) return;
           var u = strip.userData, N = u.N, e = Math.max(u.e, .0005), P = strip.geometry.attributes.position.array, UV = strip.geometry.attributes.uv.array;
-          var x = .0605, y = .0478, ph = 50 * Math.PI / 180, ds = e / N, half = u.W / 2;
+          var x = .0614, y = .0498, ph = 50 * Math.PI / 180, ds = e / N, half = u.W / 2;   // v9.1: 이전 FOLD MARK 와 같은 방향·각도 — 패드 뒤 틈에서 앞쪽(주먹 친 방향)으로 50°
           for (var i = 0; i <= N; i++) {
             var s = i * ds;
             if (i) { var a = ph - Math.min(Math.max(0, s - .05) * 7, 1.9) * (1 - .25 * u.lift) * (1 - (u.taut || 0)); x += Math.cos(a) * ds; y += Math.sin(a) * ds; }   // 처음 5 cm 는 50° 로 곧게(친 각도 = 뽑는 각도), 그다음은 길게 나오며 무게로 휨
@@ -528,9 +534,9 @@
         }
         // 누름 파문
         var ring = new T.Mesh(new T.RingGeometry(.02, .024, 48), new T.MeshBasicMaterial({ color: 0xF2D94B, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }));
-        ring.rotation.x = -Math.PI / 2; ring.position.set(REC.x - .084, REC.y + .003, 0); squash.add(ring);
+        ring.rotation.x = -Math.PI / 2; ring.position.set(0, .0005, 0); padTilt.add(ring);
         var M = { group: wrap, root: root, pad: pad, strip: strip, ring: ring, glowM: glow, hover: 0, tHover: 0, bandMat: bandMat, sq: 0, rip: 1, blink: 0, glow: .25, tGlow: .25, job: null, busy: false, rec: REC };
-        M.isPad = function (pw) { var q = root.worldToLocal(pw.clone()); return q.x > .055 && q.x < .145 && Math.abs(q.z) < .045 && q.y > .02; };
+        M.isPad = function (pw) { var q = root.worldToLocal(pw.clone()); return q.x > .074 && q.x < .17 && Math.abs(q.z) < .034 && q.y > .018; };
         M.recWorld = function () { return root.localToWorld(REC.clone()); };
         // 툭 → 고르기 → 인쇄
         M.tap = function (onPrinted) {
@@ -541,6 +547,12 @@
         };
         M.sig = "idle"; M.sigT = 0; M.onSig = null;
         M.setSig = function (k) { M.sig = k; M.sigT = 0; if (M.onSig) M.onSig(k); };
+        // v9.1: 출력된 스티커를 눌러서 떼기 (패드를 다시 누르지 않아도 됨)
+        M.isStrip = function (obj) { return !!strip && obj === strip && strip.visible && strip.userData.e > .01; };
+        M.tear = function (cb) {
+          if (!strip || M.busy || strip.userData.e < .01 || M.tearing) return false;
+          M.tearing = { t: 0, cb: cb }; return true;
+        };
         M.resetStrip = function () { if (strip) { strip.userData.e = 0; strip.userData.lift = 0; strip.userData.fade = 1; layStrip(); } };
         M.update = function (dt, t) {
           // 눌림 (스프링)
@@ -566,6 +578,11 @@
             else if (M.sig === "done") { M.tGlow = 1.7; if (M.sigT > 2.6) M.setSig("idle"); }
             else if (M.sig === "full") { var q = M.sigT; M.tGlow = (q < .2 || (q > .4 && q < .6)) ? 1.7 : (q < 3 ? 0 : g0); if (q > 3.2) M.setSig("idle"); }
             else M.tGlow = damp(M.tGlow, g0, 2, dt);
+          }
+          if (M.tearing && strip) {   // 떼기: 위로 살짝 들리며 사라짐 → 틈은 다시 비어 있음
+            var tw = M.tearing; tw.t += dt; var kk = clamp(tw.t / .5, 0, 1);
+            strip.userData.taut = eout(kk); strip.userData.lift = eout(kk); strip.userData.fade = 1 - kk;
+            if (kk >= 1) { strip.userData.e = 0; strip.userData.lift = 0; strip.userData.fade = 1; strip.userData.taut = 0; M.tearing = null; if (tw.cb) tw.cb(); }
           }
           M.glow = damp(M.glow, M.tGlow, 14, dt);
           if (bandMat) bandMat.emissiveIntensity = M.glow;
@@ -735,7 +752,7 @@
 
       /* ---- 세트 ---- */
       var FMP = new T.Vector3(-.5, .9, 4.3), SFP = new T.Vector3(1.35, 0, 1), TRAY0 = [.02, .9, 4.3], D50 = [Math.cos(50 * Math.PI / 180), Math.sin(50 * Math.PI / 180)];
-      var BASE = [FMP.x - .084 + .0605, FMP.y + .0478, FMP.z], REC = [FMP.x + .014, FMP.y + .04, FMP.z];
+      var BASE = [FMP.x - .085 + .0614, FMP.y + .0498, FMP.z], REC = [FMP.x + .033, FMP.y + .03, FMP.z];   // v9 새 FOLD MARK
       // 노점 카운터 (FOLD MARK 가 놓인 곳)
       var ctop = new T.Mesh(new T.BoxGeometry(4, .04, .66), new T.MeshPhysicalMaterial({ color: 0x34352f, roughness: .6, clearcoat: .08, clearcoatRoughness: .6 })); ctop.position.set(-1.5, .88, 4.3); ctop.receiveShadow = ctop.castShadow = true; sc.add(ctop);
       var cbody = new T.Mesh(new T.BoxGeometry(3.96, .86, .6), new T.MeshPhysicalMaterial({ color: 0x1f201b, roughness: .8 })); cbody.position.set(-1.5, .43, 4.3); cbody.receiveShadow = true; sc.add(cbody);
@@ -805,7 +822,7 @@
         var r0 = sec.getBoundingClientRect(), tgt = forceP != null ? forceP : clamp(-r0.top / Math.max(1, r0.height - innerHeight), 0, 1);
         // v6: 휠 한 번에 장면이 툭 넘어가지 않게, 스크롤 위치를 부드럽게 따라감
         if (S.ps == null || forceP != null || Math.abs(tgt - S.ps) > .25) S.ps = tgt; else S.ps += (tgt - S.ps) * (1 - Math.exp(-dt * 3.2));
-        var p = S.ps; S.p = p;
+        var p = S.ps; S.p = p; window.PP_FILM_P = p;   // v9.1: 자막(단어씩 나타나기 · 큰 낱말)이 같은 시간을 씀
         S.videoOn = FILMV.update(p, host);       // v6: 실사 영상이 있는 컷은 영상으로 (3D 는 쉬게 함)
         var W = S.w || 1, Hh = S.h || 1, asp = W / Hh, narrow = asp < 1.25;
         cam.fov = clamp(30 * Math.pow(1.6 / asp, .8), 30, 60); cam.updateProjectionMatrix();
@@ -949,6 +966,7 @@
       S.hitPad = function (nx, ny) {
         if (!S.fm) return false; var rc = new T.Raycaster(); rc.setFromCamera(new T.Vector2(nx, ny), cam);
         var hit = rc.intersectObjects([S.fm.group], true)[0]; if (!hit) return null;
+        if (S.fm.isStrip(hit.object)) return { strip: true, point: hit.point };
         return { pad: S.fm.isPad(hit.point), point: hit.point };
       };
       S.update = function (dt, t) {
@@ -1072,8 +1090,200 @@
       return S;
     }
 
+    /* =========================================================
+       v9 무대: 제품 이야기 (스크롤로 보는 소개)
+       ① 부품이 날아와 하나의 제품으로 맞물림 → ② 스크롤할 때마다 한 부위씩 다가가 기능을 보여 줌
+       → ③ 다 본 뒤에 아래 '직접 해 보기'가 열림
+       ========================================================= */
+    var STORY = {
+      fm: {
+        home: { yaw: .55, pitch: .42, dist: .62, t: [0, .03, 0] }, far: { yaw: -.6, pitch: .7, dist: 1.25, t: [0, .04, 0] },
+        stops: [
+          { k: "pad", no: "01", name: "주먹 패드", t: "툭, 치면 시작합니다", d: "버튼 대신 주먹이 닿는 회색 패드. 보기만 해도 어디를 칠지 알 수 있습니다.", v: { yaw: .45, pitch: .85, dist: .42, t: [.033, .03, 0] } },
+          { k: "slot", no: "02", name: "윗면 틈", t: "약도가 올라옵니다", d: "AI가 고른 빈 테이블까지의 약도 스티커가 패드 바로 뒤 틈에서 나옵니다.", v: { yaw: .9, pitch: .32, dist: .62, t: [-.024, .1, 0] } },
+          { k: "band", no: "03", name: "앞 빛 띠", t: "빛으로 말합니다", d: "대기 · 고르는 중 · 출력 완료 · 빈자리 없음을 호박색 빛의 리듬으로 알립니다.", v: { yaw: 1.45, pitch: .2, dist: .4, t: [.08, .016, 0] } },
+          { k: "back", no: "04", name: "뒤 뚜껑", t: "뒤로 열어 갈아 끼웁니다", d: "몸체 뒤쪽 비스듬한 이음선까지가 스티커 카트리지 뚜껑입니다. 장사 중에도 앞을 건드리지 않습니다.", v: { yaw: -2.2, pitch: .45, dist: .5, t: [-.055, .03, 0] } }
+        ]
+      },
+      sf: {
+        home: { yaw: .5, pitch: .1, dist: 5.4, t: [0, 1.05, 0] }, far: { yaw: -.5, pitch: .32, dist: 8.6, t: [0, 1.1, 0] },
+        stops: [
+          { k: "lamp", no: "01", name: "노란 등", t: "멀리서도 보이는 빛", d: "번호 대신 빛으로 자리를 알립니다. 골목 입구에서도 찾을 수 있습니다." },
+          { k: "display", no: "02", name: "디스플레이", t: "이 자리의 지금 상태", d: "비었는지, 누구를 기다리는지(번호와 도착 시각만) 보여 줍니다. 얼굴·이름은 띄우지 않습니다." },
+          { k: "reader", no: "03", name: "대는 곳", t: "트레이를 대면", d: "흰 원형 조명이 '여기에 대세요'라고 숨쉬듯 알려 줍니다. 스티커가 맞으면 판이 내려옵니다." },
+          { k: "plate", no: "04", name: "판", t: "내려오는 판", d: "평소엔 기둥에 붙어 있다가 확인이 끝나면 천천히 내려와 한 사람의 식사 자리가 됩니다." },
+          { k: "bin", no: "05", name: "쓰레기통 모듈", t: "그 자리에서 버리기", d: "다 먹은 꼬치와 트레이는 아래 모듈로. 가득 차면 호박색 선이 깜박입니다." },
+          { k: "tag", no: "06", name: "카드 태그", t: "수거는 카드 한 번", d: "옆면에 수거 담당자가 카드를 대면 통이 기울어 나오고, 비운 시각이 기록됩니다." }
+        ]
+      }
+    };
+    function viewLerp(a, b, k) {
+      var dy = ((b.yaw - a.yaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      return { yaw: a.yaw + dy * k, pitch: lerp(a.pitch, b.pitch, k), dist: lerp(a.dist, b.dist, k), t: [lerp(a.t[0], b.t[0], k), lerp(a.t[1], b.t[1], k), lerp(a.t[2], b.t[2], k)] };
+    }
+    // 아무 모델이나 재질별로 묶어 '부품'으로 만듦 (새 FOLD MARK 모델이 와도 그대로 작동)
+    function autoParts(root, keepOut) {
+      root.updateMatrixWorld(true);
+      var by = {}, cen = new T.Box3().setFromObject(root).getCenter(new T.Vector3()), list = [];
+      root.traverse(function (o) { if (o.isMesh && o.visible && (!keepOut || keepOut.indexOf(o) < 0)) (by[o.userData.mn || "_"] = by[o.userData.mn || "_"] || []).push(o); });
+      var keys = Object.keys(by), biggest = null, bv = 0;
+      keys.forEach(function (k) { var b = new T.Box3(); by[k].forEach(function (o) { b.expandByObject(o); }); var sz = b.getSize(new T.Vector3()), v = sz.x * sz.y * sz.z; if (v > bv) { bv = v; biggest = k; } by[k].box = b; });
+      keys.forEach(function (k, i) {
+        if (k === biggest) return;   // 가장 큰 몸체는 제자리 (나머지가 여기로 모여듦)
+        var g = new T.Group(); root.add(g); by[k].slice().forEach(function (o) { reparent(o, g); });
+        var c = by[k].box.getCenter(new T.Vector3()), d = c.sub(cen); d.y = Math.max(d.y, 0) + .02; if (d.lengthSq() < 1e-6) d.set(0, 1, 0);
+        list.push({ g: g, dir: d.normalize(), i: i });
+      });
+      return list;
+    }
+    function storyStage(host, kind) {
+      var D = STORY[kind], big = kind === "sf";
+      var sc = new T.Scene(), cam = new T.PerspectiveCamera(big ? 26 : 24, 1, .01, 40), S = { host: host, sc: sc, cam: cam, p: 0, cur: -2, kind: kind };
+      sc.environment = ENV_DAY; sc.environmentIntensity = .5;
+      keyLight(sc, 0xFFE9CF, 3.2, big ? new T.Vector3(-2.2, 4, 3) : new T.Vector3(-.6, 1.4, .9), big ? 1.6 : .35, big ? new T.Vector3(0, 1, 0) : null);
+      var rim = new T.DirectionalLight(0xFFB547, big ? 2.4 : 2.0); rim.position.set(big ? 2.6 : .9, big ? 2.4 : .55, big ? -2.6 : -.9); sc.add(rim);   // 뒤에서 호박색 윤곽
+      realLight(sc, big ? 1.6 : .35);
+      ground(sc, big ? 1.3 : .5, big ? 1 : .4, .5, .9);
+      var O = new Orbit({ yaw: D.home.yaw, pitch: D.home.pitch, dist: D.home.dist, t: D.home.t, min: .1, max: 14 }); if (big) O.wide = .5; S.orbit = O;
+      var sec = host.closest("[data-story]"), card = $(".pp-story-card", sec), ticks = $$(".pp-story-ticks li", sec), cta = $(".pp-story-cta", sec);
+      var cNo = card && $(".no", card), cName = card && $(".nm", card), cT = card && $("h3", card), cD = card && $(".d", card);
+      var parts = [];
+      if (big) {
+        // 부위별 시점: 기존 부위 탐색의 시점을 그대로 씀
+        D.stops.forEach(function (s) { s.v = PART[s.k].v; });
+        buildSF(function (m) {
+          S.m = m; sc.add(m.group); m.asm = {}; m.tLampOn = .2;
+          var DIR = { lamp: [0, 1.4, .3], display: [-.9, .4, 1.2], reader: [.9, .1, 1.3], tag: [1.4, -.2, 0], plate: [0, .3, 1.6], bin: [-.6, -.5, 1.3] };
+          Object.keys(DIR).forEach(function (k, i) { parts.push({ k: k, dir: new T.Vector3().fromArray(DIR[k]).normalize(), i: i }); });
+        });
+      } else {
+        buildFM(function (m) {
+          S.m = m; sc.add(m.group); m.idleGlow = .3;
+          autoParts(m.root, m.strip ? [m.strip] : null).forEach(function (q) { parts.push(q); });
+        }, {});
+      }
+      function setCard(i) {
+        if (!card) return;
+        var s = i >= 0 ? D.stops[i] : null;
+        card.classList.add("is-swap");
+        clearTimeout(S._ct); S._ct = setTimeout(function () {
+          card.classList.toggle("is-intro", !s);
+          if (s) { cNo.textContent = s.no + " / 0" + D.stops.length; cName.textContent = s.name; cT.textContent = s.t; cD.textContent = s.d; }
+          card.classList.remove("is-swap");
+        }, 220);
+        ticks.forEach(function (li, j) { li.classList.toggle("is-on", j === i); li.classList.toggle("is-past", j < i); });
+      }
+      ticks.forEach(function (li, j) { li.addEventListener("click", function () { var r = sec.getBoundingClientRect(), span = sec.offsetHeight - innerHeight, A = 1 / (D.stops.length + 1); scrollTo({ top: scrollY + r.top + (A + (j + .45) * (1 - A) / D.stops.length) * span, behavior: reduced ? "auto" : "smooth" }); }); });
+      S.update = function (dt, t) {
+        var r = sec.getBoundingClientRect(), span = Math.max(1, sec.offsetHeight - innerHeight), p = clamp(-r.top / span, 0, 1);
+        S.p = p; var n = D.stops.length, A = 1 / (n + 1);
+        if (p > .96) { sec.classList.add("is-done"); try { sessionStorage.setItem("pp-story-" + kind, "1"); } catch (e) {} unlock(kind); }
+        if (cta) cta.classList.toggle("is-on", p > .9);
+        if (!S.m) return;
+        var m = S.m;
+        // ① 조립: 0 ~ A
+        var asm = clamp(p / (A * .92), 0, 1);
+        parts.forEach(function (q, j) {
+          var k0 = clamp((asm - j * .06) / .62, 0, 1), e = 1 - eout(k0), dd = (big ? 1.6 : .16) * e;
+          if (big) m.asm[q.k] = [q.dir.x * dd, q.dir.y * dd, q.dir.z * dd, e * 1.4 * (j % 2 ? 1 : -1)];
+          else { q.g.position.copy(q.dir).multiplyScalar(dd); q.g.rotation.y = e * 1.2 * (j % 2 ? 1 : -1); }
+        });
+        // ② 부위: A ~ 1
+        var i = p < A ? -1 : Math.min(n - 1, Math.floor((p - A) / ((1 - A) / n))), lp = p < A ? 0 : ((p - A) / ((1 - A) / n)) - i;
+        if (i !== S.cur) { var old = S.cur; S.cur = i; setCard(i); if (big && old >= 0 && PART[D.stops[old].k].off) PART[D.stops[old].k].off(m); }
+        var view;
+        if (i < 0) view = viewLerp(D.far, D.home, eio(asm));
+        else { var from = i === 0 ? D.home : D.stops[i - 1].v; view = viewLerp(from, D.stops[i].v, eio(clamp(lp / .38, 0, 1))); }
+        var zoomOut = i >= 0 ? (big ? 2.1 : 1.45) : 1;   // 부위 시점은 조금 물러서서 (설명 카드와 겹치지 않게)
+        O.c.yaw = view.yaw; O.c.pitch = view.pitch; O.c.dist = view.dist * lerp(1, zoomOut, i < 0 ? 0 : i === 0 ? eio(clamp(lp / .38, 0, 1)) : 1); O.c.x = view.t[0]; O.c.y = view.t[1]; O.c.z = view.t[2];
+        O.g = Object.assign({}, O.c); if (!reduced) O.c.yaw += Math.sin(t * .35) * .03;
+        O.apply(cam);
+        // 카드가 오른쪽에 있을 땐 제품을 화면 왼쪽으로 조금 옮김 (넓은 화면만)
+        S.shift = damp(S.shift || 0, i >= 0 && innerWidth > 860 ? 1 : 0, 4, dt);
+        var cw = host.clientWidth, chh = host.clientHeight;
+        if (S.shift > .002) cam.setViewOffset(cw, chh, cw * .13 * S.shift, 0, cw, chh); else if (cam.view) cam.clearViewOffset();
+        sec.classList.toggle("is-stop", i >= 0);
+        // 부위마다 움직임 (스크롤에 맞춰)
+        var k = i >= 0 ? D.stops[i].k : null, act = clamp((lp - .3) / .5, 0, 1);
+        if (big) {
+          m.tFold = k === "plate" ? (act > .05 ? 1 : 0) : (k === "bin" || k === "tag") ? 1 : k === "reader" && act > .7 ? 1 : 0;
+          m.tTilt = (k === "bin" && act > .3) || (k === "tag" && act > .5) ? 1 : 0;
+          m.tLampOn = k === "lamp" ? 1 : .25;
+          if (k === "reader" && act > .3 && !S._rp) { S._rp = 1; m.readerPulse = 1; m.setScreen("ok"); } if (k !== "reader") S._rp = 0;
+          if (k === "display") { var mode = act < .33 ? "idle" : act < .66 ? "wait" : "use"; if (m.mode !== mode) m.setScreen(mode); } else if (k !== "reader" && m.mode !== "idle") m.setScreen("idle");
+          if (k === "tag" && act > .2 && !S._tp) { S._tp = 1; m.tagPulse = 1.2; } if (k !== "tag") S._tp = 0;
+          m.update(dt, t);
+        } else {
+          if (k === "pad") { if ((S._tt = (S._tt || 0) + dt) > 1.3) { S._tt = 0; m.sq = 1; m.rip = 0; } }
+          if (m.strip) { m.strip.userData.e = k === "slot" ? m.strip.userData.L * eio(act) : (k === "band" || k === "back") ? m.strip.userData.L : 0; m.strip.userData.fade = 1; m.strip.userData.lift = 0; }
+          m.idleGlow = k === "band" ? [.3, .2 + 1.5 * (Math.sin(t * 22) > 0 ? 1 : 0), 1.7, (Math.sin(t * 7) > 0 ? 1.6 : .05)][Math.min(3, Math.floor(act * 4))] : .3;
+          m.update(dt, t);
+        }
+      };
+      return S;
+    }
+    function unlock(kind) {
+      var el = $(kind === "fm" ? "#ppStudio" : "#ppExplore"); if (el && el.classList.contains("is-locked")) el.classList.remove("is-locked");
+    }
+    ["fm", "sf"].forEach(function (k) { var v = null; try { v = sessionStorage.getItem("pp-story-" + k); } catch (e) {} if (v) unlock(k); });
+    $$("[data-unlock]").forEach(function (b) { b.addEventListener("click", function () { var k = b.getAttribute("data-unlock"); var s = $('[data-story="' + k + '"]'); if (s) scrollTo({ top: scrollY + s.getBoundingClientRect().top, behavior: reduced ? "auto" : "smooth" }); }); });
+    $$("[data-skip]").forEach(function (b) { b.addEventListener("click", function () { unlock(b.getAttribute("data-skip")); }); });
+
+    /* =========================================================
+       v9 첫 화면: 점(LED)으로 그린 두 제품 — 위에서 빛이 쏟아지듯 하나씩 켜짐
+       3D 모델을 작은 그림으로 그린 뒤, 밝기를 점 크기로 바꿈 (모델이 바뀌면 점 그림도 따라 바뀜)
+       ========================================================= */
+    (function heroDots() {
+      var cvs = $$("canvas[data-dots]"); if (!cvs.length) return;
+      var W = 200, H = 92, rt = new T.WebGLRenderTarget(W, H), buf = new Uint8Array(W * H * 4);
+      var sc = new T.Scene(), cam = new T.PerspectiveCamera(22, W / H, .01, 30), ok = false, t0 = performance.now();
+      sc.environment = ENV_DAY; sc.environmentIntensity = .6;
+      var kl = new T.DirectionalLight(0xffffff, 3.2); kl.position.set(-1, 2.2, 1.6); sc.add(kl);
+      var rl = new T.DirectionalLight(0xffffff, 1.6); rl.position.set(1.6, 1, -1); sc.add(rl);
+      var pair = new T.Group(); sc.add(pair); var n = 0;
+      buildSF(function (m) { m.group.scale.setScalar(.27); m.group.position.set(.19, 0, -.06); m.group.rotation.y = -.45; pair.add(m.group); n++; });
+      buildFM(function (m) { m.group.scale.setScalar(2.3); m.group.position.set(-.16, 0, .12); m.group.rotation.y = .6; pair.add(m.group); n++; }, { noStrip: true });
+      cam.position.set(0, .5, 2.4); cam.lookAt(0, .3, 0);
+      var vis2 = cvs.map(function () { return false; });
+      if ("IntersectionObserver" in window) { var io2 = new IntersectionObserver(function (es) { es.forEach(function (e) { vis2[cvs.indexOf(e.target)] = e.isIntersecting; }); }); cvs.forEach(function (c) { io2.observe(c); }); } else vis2 = vis2.map(function () { return true; });
+      (function loop(now) {
+        requestAnimationFrame(loop);
+        if (!vis2.some(Boolean) || doc.hidden) return;
+        var tt = (now - t0) / 1000;
+        if (n === 2) {
+          pair.rotation.y = reduced ? 0 : Math.sin(tt * .25) * .35;
+          r.setRenderTarget(rt); r.setClearColor(0x000000, 0); r.clear(); r.render(sc, cam); r.readRenderTargetPixels(rt, 0, 0, W, H, buf); r.setRenderTarget(null); ok = true;
+        }
+        cvs.forEach(function (cv, ci) {
+          if (!vis2[ci]) return;
+          var cw = cv.clientWidth, ch = cv.clientHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+          if (cv.width !== Math.round(cw * dpr) || cv.height !== Math.round(ch * dpr)) { cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); }
+          var g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, cw, ch);
+          var step = Math.min(cw / W * (cw < 700 ? 1.9 : 1), ch / H), ox = (cw - W * step) / 2, oy = (ch - H * step) / 2, rMax = step * .46;
+          var scan = reduced ? 2 : clamp((tt - .3) / 2.2, 0, 1.2);
+          for (var y = 0; y < H; y++) {
+            var yy = oy + (y + .5) * step; if (yy < -step || yy > ch + step) continue;
+            var rowOn = clamp((scan * H * 1.15 - y) / 10, 0, 1);
+            for (var x = 0; x < W; x++) {
+              var xx = ox + (x + .5) * step, i4 = ((H - 1 - y) * W + x) * 4, a = ok ? buf[i4 + 3] / 255 : 0;
+              var lum = ok ? (buf[i4] * .3 + buf[i4 + 1] * .55 + buf[i4 + 2] * .15) / 255 : 0, b = a * Math.pow(lum, .9) * rowOn;
+              // 위에서 쏟아지는 빛 (가운데가 더 밝음)
+              var beam = Math.exp(-Math.pow((x / W - .5) / .2, 2)) * (1 - y / H) * .35;
+              if (b > .04) {
+                g.fillStyle = b > .8 ? "rgba(255,244,214," + Math.min(1, b).toFixed(3) + ")" : "rgba(242," + (170 + (b * 60 | 0)) + ",72," + Math.min(1, .25 + b).toFixed(3) + ")";
+                g.beginPath(); g.arc(xx, yy, rMax * (.35 + .65 * Math.sqrt(b)), 0, 6.283); g.fill();
+              } else {
+                var dim = .05 + beam * rowOn * .5;
+                g.fillStyle = "rgba(242,200,110," + dim.toFixed(3) + ")"; g.fillRect(xx - .7, yy - .7, 1.4, 1.4);
+              }
+            }
+          }
+        });
+      })(0);
+    })();
+
     /* ---- 무대 고르기 ---- */
-    var MAKERS = { film: stageFilm, fmSteps: stageFmSteps, fmStudio: stageFmStudio, sf: stageSF }, HOSTS = $$("[data-stage]");
+    var MAKERS = { film: stageFilm, fmSteps: stageFmSteps, fmStudio: stageFmStudio, sf: stageSF, fmStory: function (h) { return storyStage(h, "fm"); }, sfStory: function (h) { return storyStage(h, "sf"); } }, HOSTS = $$("[data-stage]");
     function stage(host) { var n = host.getAttribute("data-stage"); if (!STAGES[n]) STAGES[n] = MAKERS[n](host); return STAGES[n]; }
     // 처음 몇 개는 미리 만들어 둠 (스크롤 중 끊김 줄이기)
     HOSTS.forEach(function (h) { stage(h); });
@@ -1113,13 +1323,13 @@
         if (e.pointerType === "touch" && DRAG.moved < 12 && Math.abs(dy) > Math.abs(dx)) return;
         S.orbit.drag(dx, dy);
       } else if (S === STAGES.fmStudio && e.pointerType === "mouse") {
-        var q = nxy(e), h = S.hitPad(q[0], q[1]); cursorText(h && h.pad ? "툭 — 눌러서 스티커 뽑기" : ""); el.style.cursor = h && h.pad ? "pointer" : ""; S.fm.tHover = h && h.pad ? 1 : 0;
+        var q = nxy(e), h = S.hitPad(q[0], q[1]); cursorText(h && h.pad ? "툭 — 눌러서 스티커 뽑기" : h && h.strip ? "눌러서 스티커 떼기" : ""); el.style.cursor = h && (h.pad || h.strip) ? "pointer" : ""; S.fm.tHover = h && h.pad ? 1 : 0;
       }
     });
     function up(e) {
       var S = E.active; delete DRAG.pts[e.pointerId]; if (Object.keys(DRAG.pts).length < 2) DRAG.pinch = 0;
       if (!DRAG.on) return; DRAG.on = false;
-      if (S && DRAG.moved < 6 && S === STAGES.fmStudio) { var q = nxy(e), h = S.hitPad(q[0], q[1]); if (h && h.pad) S.tap(); }
+      if (S && DRAG.moved < 6 && S === STAGES.fmStudio) { var q = nxy(e), h = S.hitPad(q[0], q[1]); if (h && h.pad) S.tap(); else if (h && h.strip && S.fm.tear(function () { note.textContent = "스티커를 떼었어요. 트레이 옆면에 붙여 건네면 됩니다."; })) { showPaper(); note.textContent = "스티커를 떼는 중…"; } }
     }
     el.addEventListener("pointerleave", function () { cursorText(""); el.style.cursor = ""; if (STAGES.fmStudio && STAGES.fmStudio.fm) STAGES.fmStudio.fm.tHover = 0; });
     el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);

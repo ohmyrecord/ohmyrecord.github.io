@@ -304,13 +304,17 @@
 
       /* 사람 위치 + 큰길 밀도 */
       var bins = new Float32Array(36), n = agents.length;
-      var pos = new Float32Array(n * 5);
+      var pos = new Float32Array(n * 5), same = new Uint8Array(n);
       for (var i = 0; i < n; i++) {
         var a = agents[i];
         var alpha = 1 - 0.55 * dark;
         var p = agentAt(a, t, chaos > 0.05);
+        // v8: 길 끝(건물 사이 · 지도 가장자리)에서는 갑자기 튀어나오지 않고 천천히 나타남
+        var Sx = STREETS[p[3]], edge = Math.min(p[2], Sx.len - p[2]);
+        if (Sx.kind === "alley") alpha *= clamp((edge - 6) / 46, 0, 1); else alpha *= clamp((edge - 30) / 60, 0, 1);
+        if (ov && st.occ && alpha > 0.01 && st.occ(p[0], p[1])) alpha = 0;   // v9: 3D 건물 뒤에 가려진 사람은 그리지 않음
         pos[i * 5] = p[0]; pos[i * 5 + 1] = p[1]; pos[i * 5 + 2] = alpha;
-        if (Math.abs(trail) > 0.5) { var q = agentAt(a, t - trail, chaos > 0.05); pos[i * 5 + 3] = q[0]; pos[i * 5 + 4] = q[1]; }
+        if (Math.abs(trail) > 0.5) { var q = agentAt(a, t - trail, chaos > 0.05); pos[i * 5 + 3] = q[0]; pos[i * 5 + 4] = q[1]; same[i] = q[3] === p[3] ? 1 : 0; }
         else { pos[i * 5 + 3] = p[0]; pos[i * 5 + 4] = p[1]; }
         if (p[3] === 0) bins[Math.min(35, (p[2] / MAIN.len * 36) | 0)] += 1;
       }
@@ -385,8 +389,8 @@
         if (al2 <= 0.02) continue;
         var x1 = pos[m2 * 5], y1 = pos[m2 * 5 + 1], x0 = pos[m2 * 5 + 3], y0 = pos[m2 * 5 + 4];
         var dd = Math.abs(x1 - x0) + Math.abs(y1 - y0);
-        if (dd > 1.2 && dd < 140) {
-          ctx.globalAlpha = al2 * 0.32; ctx.lineWidth = 4.6;
+        if (same[m2] && dd > 1.2 && dd < 46) {          // v8: 다른 길로 꺾은 잔상(건물을 가로지르는 삐죽한 선)은 그리지 않음
+          ctx.globalAlpha = al2 * 0.22 * (1 - dd / 46); ctx.lineWidth = 4.2;
           ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
         }
         ctx.globalAlpha = al2 * 0.88;

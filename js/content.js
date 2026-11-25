@@ -85,7 +85,7 @@ window.MD_CONTENT = {
       act: "빛(초록 · 빨강)으로 알리고, 버튼을 누르면 판이 펼쳐진다",
       useImg: "",
       card: "./assets/images/products/staygap.webp",
-      model: "staygap_3",
+      model: "staygap_motion_v7",
       page: "./PRODUCT03/index.html"
     },
     {

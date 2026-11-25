@@ -400,3 +400,169 @@ body.pp::after { content: ""; position: fixed; inset: -50%; z-index: 80; pointer
 /* v6: 첫 시나리오 실사 영상 층 (3D 위, 글자 아래) */
 .pp-film-video { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .pp-film-video .pp-cut { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; visibility: hidden; background: #0b0b0c; }
+
+/* =========================================================
+   v9 — 어둡고 따뜻한 무드 (호박색 빛 · 얇은 격자 · 점 그림)
+   ========================================================= */
+:root { --amber: #F2B848; --amber2: #FFD98A; --deep: #0B0B0A; }
+/* 첫 화면 */
+.pp-hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: radial-gradient(120% 80% at 50% 0%, #1a140a 0%, var(--deep) 55%); }
+.pp-hero .pp-dots { position: absolute; left: 0; right: 0; top: 4vh; height: 70vh; width: 100%; }
+.pp-beam { position: absolute; left: 50%; top: -10vh; width: 52vw; height: 70vh; transform: translateX(-50%); pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(255,190,90,.22), rgba(255,170,70,.06) 55%, transparent 75%); filter: blur(6px); animation: ppBeam 6s ease-in-out infinite alternate; }
+@keyframes ppBeam { from { opacity: .7; } to { opacity: 1; } }
+.pp-hero-in { position: absolute; left: 0; right: 0; bottom: clamp(120px, 20vh, 220px); text-align: center; padding: 0 16px; }
+.pp-hero-in .pp-eyebrow { color: rgba(243,240,228,.5); margin-bottom: 14px; }
+.pp-hero-t { display: block; margin: 0; font-size: clamp(40px, 6.4vw, 112px); line-height: 1; font-weight: 800; letter-spacing: -.045em; color: #F7F3E8; }
+.pp-hero-t span { color: var(--amber); }
+.pp-hero-l { display: block; margin: 18px auto 0; max-width: 640px; font-size: clamp(16px, 1.25vw, 20px); color: rgba(243,240,228,.7); }
+.pp-pill { position: absolute; left: 50%; bottom: clamp(24px, 5vh, 48px); transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; border-radius: 99px; background: rgba(28,27,23,.72);
+  border: 1px solid rgba(243,240,228,.1); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); white-space: nowrap; }
+.is-ready .pp-pill.pp-in { transform: translateX(-50%); }
+.pp-pill a { padding: 10px 16px; border-radius: 99px; font-size: 14px; font-weight: 600; color: rgba(243,240,228,.75); transition: background .25s, color .25s; }
+.pp-pill a:hover { background: rgba(243,240,228,.08); color: #fff; }
+.pp-pill a:last-child { background: var(--amber); color: #1b1408; }
+/* 영상 위의 큰 글자 · 제목은 첫 화면으로 옮김 */
+.pp-film-big, .pp-film-title { display: none !important; }
+
+/* 왜: 작은 지도 */
+.pp-why2 { height: 260vh; background: var(--deep); }
+.pp-why2-pin { position: sticky; top: 0; height: 100vh; display: grid; place-items: center; padding: 0 16px; }
+.pp-frame { position: relative; width: min(1180px, 100%); aspect-ratio: 16 / 8.4; border: 1px solid rgba(243,240,228,.08);
+  background: linear-gradient(rgba(243,240,228,.025) 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(90deg, rgba(243,240,228,.025) 1px, transparent 1px) 0 0 / 40px 40px; }
+.pp-frame .c { position: absolute; width: 14px; height: 14px; border: 0 solid rgba(242,184,72,.7); }
+.pp-frame .tl { left: -1px; top: -1px; border-left-width: 1px; border-top-width: 1px; } .pp-frame .tr { right: -1px; top: -1px; border-right-width: 1px; border-top-width: 1px; }
+.pp-frame .bl { left: -1px; bottom: -1px; border-left-width: 1px; border-bottom-width: 1px; } .pp-frame .br { right: -1px; bottom: -1px; border-right-width: 1px; border-bottom-width: 1px; }
+.pp-frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pp-why2-tag { position: absolute; margin: 0; display: grid; gap: 2px; font-size: 13px; color: rgba(243,240,228,.55); }
+.pp-why2-tag b { font-size: 12px; letter-spacing: .12em; color: rgba(243,240,228,.45); font-weight: 600; }
+.pp-why2-tag span { font-size: clamp(30px, 3.4vw, 52px); font-weight: 800; color: #F7F3E8; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+.pp-why2-tag.a { left: 4%; top: 8%; } .pp-why2-tag.b { right: 4%; top: 8%; text-align: right; } .pp-why2-tag.b span { color: var(--amber); }
+.pp-why2-k { position: absolute; left: 4%; bottom: 6%; margin: 0; font-size: 12px; letter-spacing: .14em; color: rgba(243,240,228,.4); }
+
+/* 제품 이야기 */
+.pp-story { height: calc(var(--n, 5) * 95vh); background: var(--deep); }
+.pp-story-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; background: radial-gradient(70% 60% at 60% 55%, #1b1710 0%, var(--deep) 70%); }
+.pp-story-stage { position: absolute; inset: 0; }
+.pp-grid { position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: linear-gradient(rgba(243,240,228,.04) 1px, transparent 1px) 0 0 / 56px 56px, linear-gradient(90deg, rgba(243,240,228,.04) 1px, transparent 1px) 0 0 / 56px 56px;
+  -webkit-mask: radial-gradient(60% 60% at 55% 55%, #000 30%, transparent 80%); mask: radial-gradient(60% 60% at 55% 55%, #000 30%, transparent 80%); }
+.pp-story-hd { position: absolute; left: var(--pad); top: clamp(96px, 15vh, 150px); max-width: 520px; pointer-events: none; transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.pp-story-hd .pp-h2 { font-size: clamp(34px, 4.2vw, 68px); color: #F7F3E8; }
+.pp-story-card { position: absolute; right: var(--pad); top: 50%; width: min(380px, 34vw); transform: translateY(-50%); padding: 26px 26px 24px; border-radius: 22px;
+  background: rgba(24,23,19,.62); border: 1px solid rgba(243,240,228,.1); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); color: #F3F0E4;
+  transition: opacity .45s var(--ease), transform .55s var(--ease); }
+.pp-story-card.is-intro, .pp-story-card.is-swap { opacity: 0; transform: translateY(calc(-50% + 14px)); }
+.pp-story-card .no { margin: 0; font-size: 12px; letter-spacing: .14em; color: var(--amber); font-variant-numeric: tabular-nums; }
+.pp-story-card .nm { margin: 6px 0 14px; font-size: 13px; color: rgba(243,240,228,.5); }
+.pp-story-card h3 { margin: 0 0 10px; font-size: clamp(24px, 2.1vw, 34px); line-height: 1.15; letter-spacing: -.03em; }
+.pp-story-card .d { margin: 0; font-size: 16px; line-height: 1.65; color: rgba(243,240,228,.75); }
+.pp-story-ticks { position: absolute; left: var(--pad); bottom: clamp(40px, 8vh, 80px); margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pp-story-ticks li { display: flex; align-items: center; gap: 12px; font-size: 14px; color: rgba(243,240,228,.35); cursor: pointer; transition: color .3s; }
+.pp-story-ticks li span { font-size: 11px; letter-spacing: .1em; width: 22px; }
+.pp-story-ticks li::before { content: ""; width: 18px; height: 1px; background: currentColor; transition: width .4s var(--ease); }
+.pp-story-ticks li.is-past { color: rgba(243,240,228,.6); }
+.pp-story-ticks li.is-on { color: var(--amber); } .pp-story-ticks li.is-on::before { width: 42px; }
+.pp-story-cta { position: absolute; left: 50%; bottom: clamp(32px, 6vh, 64px); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; padding: 14px 24px; border-radius: 99px;
+  background: var(--amber); color: #1b1408; font-weight: 700; transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.pp-story-cta.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.pp-story .pp-drag { display: none; }
+
+/* 소개를 다 본 뒤에 열리는 체험 */
+.pp-lock { display: none; }
+.is-locked { position: relative; }
+.is-locked > .pp-lock { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px;
+  border-radius: inherit; background: rgba(250,247,238,.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.is-locked > .pp-lock p { margin: 0 0 6px; font-weight: 700; font-size: 18px; color: var(--ink); }
+.is-locked > .pp-lock button { border: 0; border-radius: 99px; padding: 12px 22px; font: inherit; font-weight: 700; background: var(--ink); color: var(--ivory); cursor: pointer; }
+.is-locked > .pp-lock button.ghost { background: transparent; color: var(--sub); text-decoration: underline; padding: 6px; font-weight: 500; }
+
+/* 연결도 */
+.pp-sys2 { padding: clamp(90px, 14vh, 160px) var(--pad); background: var(--deep); }
+.pp-net { position: relative; height: clamp(300px, 36vw, 420px); margin-top: 24px; --draw: 0; }
+.pp-net-l { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
+.pp-net-l path { fill: none; stroke: rgba(243,240,228,.12); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.pp-net-l path.glow { stroke: var(--amber); stroke-width: 2; stroke-dasharray: 1400; stroke-dashoffset: calc(1400 * (1 - var(--draw))); opacity: .75; }
+.pp-net-dot { position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: #FFE6A8; box-shadow: 0 0 18px 6px rgba(242,184,72,.55); }
+.pp-node { position: absolute; left: var(--x); top: 50%; transform: translate(-50%, -50%) scale(.94); width: min(240px, 28vw); padding: 18px 18px 16px; border-radius: 18px; text-align: left;
+  background: rgba(24,23,19,.8); border: 1px solid rgba(243,240,228,.1); color: #F3F0E4; opacity: 0; transition: opacity .7s var(--ease), transform .7s var(--ease), border-color .3s, box-shadow .3s; }
+.pp-node.is-in { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.pp-node.is-hit { border-color: rgba(242,184,72,.7); box-shadow: 0 0 0 1px rgba(242,184,72,.3), 0 10px 40px rgba(242,184,72,.18); }
+.pp-node span { display: block; font-size: 11px; letter-spacing: .14em; color: var(--amber); }
+.pp-node b { display: block; margin: 8px 0 6px; font-size: clamp(18px, 1.6vw, 24px); letter-spacing: -.02em; }
+.pp-node small { font-size: 13px; color: rgba(243,240,228,.55); }
+.pp-node.ai { background: rgba(40,32,16,.9); }
+
+/* 다음 */
+.pp-next { background: radial-gradient(90% 70% at 50% 0%, #19130a, var(--deep) 60%); }
+.pp-next-dots { display: block; width: 100%; height: clamp(220px, 40vh, 420px); margin: 8px 0 28px; }
+
+@media (max-width: 860px) {
+  .pp-hero .pp-dots { top: 10vh; height: 52vh; }
+  .pp-pill a { padding: 9px 11px; font-size: 13px; }
+  .pp-pill a:nth-child(2) { display: none; }
+  .pp-frame { aspect-ratio: 4 / 5; }
+  .pp-story-hd { top: 84px; } .pp-story-hd .pp-h2 { font-size: 30px; }
+  .pp-story-card { left: 16px; right: 16px; top: auto; bottom: 20px; width: auto; transform: none; padding: 18px; }
+  .pp-story-card.is-intro, .pp-story-card.is-swap { transform: translateY(14px); }
+  .pp-story-card .d { font-size: 14px; }
+  .pp-story-ticks { display: none; }
+  .pp-story-cta { bottom: 20px; }
+  .pp-net { height: 520px; }
+  .pp-net-l { display: none; }
+  .pp-net-dot { display: none; }
+  .pp-node { left: 50%; width: calc(100% - 8px); }
+  .pp-node:nth-of-type(1) { top: 16%; } .pp-node:nth-of-type(2) { top: 50%; } .pp-node:nth-of-type(3) { top: 84%; }
+}
+@media (prefers-reduced-motion: reduce) { .pp-beam { animation: none; } }
+.pp-story.is-stop .pp-story-hd { opacity: 0; transform: translateY(-14px); }
+.pp-hero .pp-dots { top: 7vh; height: 56vh; }
+.pp-hero-in { bottom: clamp(110px, 15vh, 180px); }
+@media (max-width: 860px) { .pp-hero .pp-scroll { display: none; } }
+
+/* =========================================================
+   v9.1 — teamcafeteria 방식 (말 · 영상 · 큰 낱말)
+   ========================================================= */
+.pp-hero, .pp-dots, .pp-why2 { display: none !important; }
+/* 첫 화면 */
+.pp-open { height: 300vh; background: #050505; }
+.pp-open-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.pp-open-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .42; filter: saturate(.8) contrast(1.05); }
+.pp-open-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,5,5,.55), rgba(5,5,5,.2) 40%, rgba(5,5,5,.85)); }
+.pp-open-t { position: absolute; left: 0; right: 0; top: 30vh; text-align: center; padding: 0 16px; transition: none; will-change: transform, opacity; }
+.pp-open-t .pp-eyebrow { color: rgba(243,240,228,.55); }
+.pp-open-h { margin: 0; font-size: clamp(44px, 8vw, 150px); line-height: .95; font-weight: 800; letter-spacing: -.05em; color: #F7F3E8; }
+.pp-open-h span { display: block; color: var(--amber); }
+.pp-open-lines { position: absolute; left: 0; right: 0; bottom: 18vh; margin: 0; padding: 0 16px; list-style: none; text-align: center; }
+.pp-open-lines li { position: absolute; left: 0; right: 0; bottom: 0; font-size: clamp(22px, 2.8vw, 46px); font-weight: 600; letter-spacing: -.025em; color: #F3F0E4;
+  opacity: 0; transform: translateY(24px); transition: opacity .45s ease, transform .6s var(--ease), filter .45s; }
+.pp-open-lines li.is-on { opacity: 1; transform: none; }
+.pp-open-lines li.is-past { opacity: 0; transform: translateY(-24px); filter: blur(4px); }
+.pp-open-lines b { color: var(--amber); font-weight: 800; }
+.pp-chap { position: absolute; right: var(--pad); top: 92px; margin: 0; padding: 0; list-style: none; display: flex; gap: 10px; font: 600 11px/1 ui-monospace, Menlo, Consolas, monospace; color: rgba(243,240,228,.3); z-index: 3; }
+.pp-chap li.is-on { color: #F3F0E4; } .pp-chap li.is-past { color: rgba(243,240,228,.6); }
+/* 목소리 */
+.pp-voices { height: calc(var(--n, 4) * 150vh); background: #050505; --key: 0; --fade: 1; }
+.pp-voices-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.pp-v-bg { position: absolute; inset: -3%; background: #111 center / cover no-repeat; opacity: calc(.38 * var(--fade)); filter: blur(3px) saturate(.7) brightness(.8); transition: background-image .3s; }
+.pp-voices-pin::after { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 70% at 50% 50%, rgba(5,5,5,.2), rgba(5,5,5,.88)); pointer-events: none; }
+.pp-v-q { position: absolute; left: 50%; top: 50%; width: min(1000px, 88vw); transform: translate(-50%, -50%); text-align: center; z-index: 2; opacity: calc(var(--fade) * (1 - var(--key))); }
+.pp-v-line { margin: 0; font-size: clamp(26px, 3.6vw, 60px); line-height: 1.28; font-weight: 600; letter-spacing: -.03em; color: #F7F3E8; word-break: keep-all; }
+.pp-v-line span, .pp-film-caps li .w span { opacity: .14; transition: opacity .25s ease, color .25s; }
+.pp-v-line span.on, .pp-film-caps li .w span.on { opacity: 1; }
+.pp-v-line span.now { color: var(--amber); }
+.pp-v-key { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; background: #F3F0E6; color: #111; font-size: clamp(80px, 19vw, 360px); font-weight: 900; letter-spacing: -.06em;
+  opacity: var(--key); transform: scale(calc(1.06 - .06 * var(--key))); pointer-events: none; }
+.pp-v-who { position: absolute; left: var(--pad); bottom: clamp(28px, 6vh, 56px); margin: 0; z-index: 4; display: flex; gap: 14px; align-items: baseline; font: 600 12px/1.4 ui-monospace, Menlo, Consolas, monospace; color: rgba(243,240,228,.7); letter-spacing: .04em; }
+.pp-v-who b { color: rgba(243,240,228,.4); font-weight: 600; } .pp-v-who i { font-style: normal; color: rgba(243,240,228,.35); }
+.pp-voices.is-key .pp-v-who, .pp-voices.is-key .pp-v-note, .pp-voices.is-key .pp-chap { color: rgba(17,17,17,.55); }
+.pp-voices.is-key .pp-v-who b, .pp-voices.is-key .pp-v-who i { color: rgba(17,17,17,.35); }
+.pp-v-note { position: absolute; right: var(--pad); bottom: clamp(28px, 6vh, 56px); margin: 0; z-index: 4; font-size: 12px; color: rgba(243,240,228,.35); }
+/* 영상 자막: 가운데 아래 한 줄 + 큰 낱말 */
+.pp-film-caps { left: 50% !important; transform: translateX(-50%); width: min(980px, 90vw); text-align: center; }
+.pp-film-caps li { left: 0 !important; right: 0; width: auto !important; font-size: clamp(22px, 2.6vw, 42px) !important; font-weight: 600; letter-spacing: -.025em; text-shadow: 0 2px 24px rgba(0,0,0,.6); }
+.pp-film-caps li small { text-shadow: none; }
+.pp-film-key { position: absolute; left: 50%; top: 46%; z-index: 5; transform: translate(-50%, -50%); opacity: 0; pointer-events: none; white-space: nowrap;
+  font-size: clamp(90px, 17vw, 320px); font-weight: 900; letter-spacing: -.06em; color: #F7F3E8; text-shadow: 0 10px 60px rgba(0,0,0,.55); mix-blend-mode: normal; }
+.pp-film.is-key .pp-film-caps { opacity: .25; }
+@media (max-width: 860px) { .pp-chap { display: none; } .pp-v-note { display: none; } .pp-open-t { top: 26vh; } }
