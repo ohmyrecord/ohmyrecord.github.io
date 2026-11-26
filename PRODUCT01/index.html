@@ -9,6 +9,11 @@
 <link rel="stylesheet" href="./css/product.css">
 </head>
 <body class="pp" data-product="1">
+<script>/* v9.2: 공용 사이트 제품 카드에서 노란색으로 꽉 채우며 넘어왔으면, 그 노란색이 천천히 걷히며 시작 */
+(function(){try{if(sessionStorage.getItem("md-wipe")!=="1")return;sessionStorage.removeItem("md-wipe");}catch(e){return;}
+var w=document.createElement("div");w.style.cssText="position:fixed;inset:0;z-index:9999;background:#F5DC5A;pointer-events:none;transition:opacity .7s ease .15s";
+document.body.appendChild(w);function off(){w.style.opacity="0";setTimeout(function(){w.remove();},900);}
+if(document.readyState==="complete")off();else window.addEventListener("load",off);setTimeout(off,4000);})();</script>
 <!-- 개인 제품 사이트 v9: 첫 화면(점 그림) → 장면(영상) → 왜(지도) → FOLD MARK 이야기 → 직접 쳐 보기 → STREET FOLD 이야기 → 직접 만져 보기 → 연결도 → 게임 → 크기 → 다음
      (이전 설명) v2 (PRODUCT 01 · STREET FOLD & FOLD MARK)
      흐름: 첫 화면 → 이야기(실사 시나리오 자리) → 문제 → FOLD MARK(컨셉·스튜디오) → STREET FOLD(부위 탐색) → 작동 구조 → 크기·소재 → 다음

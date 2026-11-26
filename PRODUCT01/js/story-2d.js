@@ -102,3 +102,15 @@
     })(0);
   }
 })();
+
+/* v9.2 저위험 최적화: 첫 화면 배경 영상은 화면 밖에 있을 때 잠시 멈추고, 다시 보이면 이어서 재생 (보이는 동안의 모습은 그대로) */
+(function () {
+  var v = document.querySelector("video.pp-open-bg");
+  if (!v || !("IntersectionObserver" in window)) return;
+  new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      else if (!v.paused) v.pause();
+    });
+  }, { rootMargin: "200px 0px" }).observe(v);
+})();

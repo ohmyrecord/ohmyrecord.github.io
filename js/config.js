@@ -24,10 +24,10 @@ window.MD_CONFIG = {
 
   /* 스크롤 길이 (화면 몇 장 분량인지) */
   scroll: {
-    sceneA: 8,            // 인트로 → 시간 흐름 → 거리로 내려앉기
-    relayPerPerson: 4.4,  // 릴레이(2D): 한 사람(제품)당
-    relay3dPer: 7,        // 릴레이(3D): 한 사람(제품)당 — 휠 한 번에 너무 많이 넘어가지 않게 길게
-    relayFirst: 12,       // 릴레이 03 (실제 3D: 노점 → 커플 → 골목 테이블)
+    sceneA: 9,            // 인트로 → 시간 흐름 → 거리로 내려앉기
+    relayPerPerson: 5,  // 릴레이(2D): 한 사람(제품)당
+    relay3dPer: 8,        // 릴레이(3D): 한 사람(제품)당 — 휠 한 번에 너무 많이 넘어가지 않게 길게
+    relayFirst: 13,       // 릴레이 03 (실제 3D: 노점 → 커플 → 골목 테이블)
     relayIntro: 0.6,      // 릴레이 시작 전 제목 구간
     sceneD: 4.2           // 도시 전체로
   },
@@ -72,3 +72,6 @@ window.MD_CONFIG = {
   /* 모바일로 보는 화면 폭 기준 (px) */
   mobileWidth: 768
 };
+
+/* v9.2 최적화: 주소 끝에 ?lite 를 붙이면 가벼운 모드 (모델·사람 수를 줄임). 붙이지 않으면 지금과 똑같음 */
+try { if (/[?&]lite(=1)?(&|$)/.test(location.search)) window.MD_LITE = true; } catch (e) {}

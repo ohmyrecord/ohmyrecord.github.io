@@ -116,15 +116,17 @@
     M.line = std(0xF2D94B, .6, { emissive: new T.Color(0xF2D94B), emissiveIntensity: 0 });
     var paveTex = canvasTex(64, 64, function (g, w, h) { g.fillStyle = "#fff"; g.fillRect(0, 0, w, h); g.strokeStyle = "rgba(0,0,0,.09)"; g.lineWidth = 1.5; for (var i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16, h); g.stroke(); g.beginPath(); g.moveTo(0, i * 16 + (i % 2) * 0); g.lineTo(w, i * 16); g.stroke(); } });
     paveTex.wrapS = paveTex.wrapT = T.RepeatWrapping; M.paving.map = paveTex; M.street.map = paveTex;
-    STREETS.forEach(function (s) {
+    STREETS.forEach(function (s, si) {
       var dx = s.b[0] - s.a[0], dz = s.b[1] - s.a[1], len = Math.hypot(dx, dz), ang = Math.atan2(dz, dx);
       var geo = new T.BoxGeometry(len, .06, s.w);
       var uv = geo.attributes.uv; for (var i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * len * .7, uv.getY(i) * s.w * .7);
       var m = new T.Mesh(geo, s.kind === "road" ? M.street : M.paving);
-      m.position.set((s.a[0] + s.b[0]) / 2, .03, (s.a[1] + s.b[1]) / 2); m.rotation.y = -ang; m.receiveShadow = true;
+      // v9.2 z-fighting: 길이 겹치는 교차로에서 윗면이 같은 높이라 지글거림 → 길마다 높이를 아주 조금씩 다르게 (중앙로가 가장 위)
+      var yOff = s.kind === "road" ? .022 : si * .0045;
+      m.position.set((s.a[0] + s.b[0]) / 2, .03 + yOff, (s.a[1] + s.b[1]) / 2); m.rotation.y = -ang; m.receiveShadow = true;
       clipToOct(m, s); group.add(m);
       if (s.kind === "road") {   // 중앙로: 가운데 노란 점선
-        for (var d = -R + 1; d < R - 1; d += 1.6) { var l = new T.Mesh(new T.BoxGeometry(.12, .02, .7), M.line); l.position.set(s.a[0], .07, d); if (inOct(l.position.x, l.position.z, R - .5)) group.add(l); }
+        for (var d = -R + 1; d < R - 1; d += 1.6) { var l = new T.Mesh(new T.BoxGeometry(.12, .02, .7), M.line); l.position.set(s.a[0], .092, d); if (inOct(l.position.x, l.position.z, R - .5)) group.add(l); }
       }
     });
   }
@@ -407,7 +409,7 @@
     var P = night ? PAL.night : PAL.day;
     L.hemi.color.setHex(P.hemiSky); L.hemi.groundColor.setHex(P.hemiGround); L.hemi.intensity = P.hemi;
     L.sun.color.setHex(P.sun); L.sun.intensity = P.sunI; L.amb.color.setHex(P.amb); L.amb.intensity = P.ambI;
-    L.pts.forEach(function (pl) { pl.intensity = night ? 16 : 0; });
+    L.pts.forEach(function (pl) { pl.intensity = night ? 16 : 0; pl.visible = !!night; });   // v9.2 최적화: 낮에는 밤 조명을 계산에서 뺌
     M.ground.color.setHex(P.ground); M.paving.color.setHex(P.paving); M.street.color.setHex(P.street); M.curb.color.setHex(P.curb);
     M.soil1.color.setHex(P.soil1); M.soil2.color.setHex(P.soil2); M.soil3.color.setHex(P.soil3);
     M.rim.emissiveIntensity = P.rimI;
@@ -504,7 +506,7 @@
     renderer.outputColorSpace = T.SRGBColorSpace; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFShadowMap;
     renderer.domElement.className = "sel-canvas"; holder.innerHTML = ""; holder.appendChild(renderer.domElement);
-    scene = new T.Scene(); camera = new T.PerspectiveCamera(30, 1, .5, 400);
+    scene = new T.Scene(); camera = new T.PerspectiveCamera(30, 1, 2, 400);   // v9.2: 가까운 면을 2로 → 깊이 정밀도 올려 z-fighting 줄임
     lights();
     ok = true;
     resize(); addEventListener("resize", resize);
@@ -524,7 +526,7 @@
       if (drag) {
         var dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
         if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
-        S.yaw -= dx * .0052; S.vyaw = -dx * .0052; S.pitch = clamp(S.pitch + dy * .003, .42, 1.18);
+        S.yaw -= dx * .0052; S.vyaw = -dx * .0052; if (drag.moved) S.used = true; S.pitch = clamp(S.pitch + dy * .003, .42, 1.18);
         el.style.cursor = "grabbing"; return;
       }
       var j = pickNear(e.clientX, e.clientY); O.hover(j, "map"); el.style.cursor = j >= 0 ? "pointer" : "grab";
@@ -540,12 +542,12 @@
       var d = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
       var next = clamp(S.distT * Math.exp(d * .0011), 16, S.fitDist);
       if (d > 0 && S.distT >= S.fitDist - .01) return;   // 다 줄인 상태에서 더 내리면 → 평소처럼 페이지가 내려감
-      e.preventDefault(); S.distT = next; S.userZoom = true;
+      e.preventDefault(); S.distT = next; S.userZoom = true; S.used = true;
       // 확대할수록 마우스가 가리키는 곳으로 조금씩 다가감
       if (d < 0) { var hp = hitP.clone(); S.ttx = clamp(lerp(S.ttx || 0, hp.x * .6, .18), -10, 10); S.ttz = clamp(lerp(S.ttz || 0, hp.z * .6, .18), -10, 10); }
       else if (next > S.fitDist * .75) { S.ttx = lerp(S.ttx || 0, 0, .25); S.ttz = lerp(S.ttz || 0, 0, .25); }
     }, { passive: false });
-    var nb = $("sNight"); if (nb) nb.addEventListener("click", function () { toggleNight(); });
+    var nb = $("sNight"); if (nb) nb.addEventListener("click", function () { toggleNight(); S.used = true; });
   }
   function pickNear(cx, cy) {
     if (!S.risen) return -1;
@@ -560,6 +562,11 @@
     S.swapping = true; S.swapPhase = "down"; S.swapFrom = world.rotation.y; S.swapped = false;
   }
   api.isNight = function () { return S.night; };
+  /* v9.2 조작 버튼용: 돌리기 · 확대/축소 · 낮/밤 */
+  api.ready = function () { return !!(S.risen && S.mode === "overview" && !S.swapping); };
+  api.rotateBy = function (d) { if (!api.ready()) return; S.vyaw += d; S.used = true; };
+  api.zoomBy = function (f) { if (!api.ready()) return; S.distT = clamp(S.distT * f, 16, S.fitDist); S.userZoom = S.distT < S.fitDist - .01; if (!S.userZoom) { S.ttx = 0; S.ttz = 0; } S.used = true; };
+  api.toggleNight = function () { toggleNight(); S.used = true; };
 
   /* ---------- 제품으로 다가가기 / 돌아오기 ---------- */
   api.focus = function (j) {
@@ -580,6 +587,7 @@
     S.inView = stageRect.bottom > 0 && stageRect.top < vh;
     if (!S.inView) return;
     if (!S.built) { build(); }
+    var stg = $("sStage"); if (stg) { var rd = api.ready(); if (rd !== S._rd) { S._rd = rd; stg.classList.toggle("is-risen", rd); } if (S.used && !S._usedC) { S._usedC = true; stg.classList.add("is-used"); } }
     tryRealModels();
     S.tLive += dt;
     /* v9.1 솟기 · 들어가기 — 하나의 값(S.lvl: 0 = 모두 땅속, 1 = 모두 솟음)만 시간에 따라 부드럽게 움직임
@@ -588,9 +596,11 @@
        · 건물은 크기를 줄이지 않고 땅속에서 '밀려 올라옴' (창문이 찌그러지지 않게, 튕김 없이) */
     var sec = holder.closest(".select"), sr = sec ? sec.getBoundingClientRect() : stageRect;
     /* v9.1b 스크롤 연동: 섹션이 화면에 들어오는 만큼 솟고(위 → 0.1vh 지점에서 완성), 떠나는 만큼 내려감 */
-    var pin = clamp((vh * .95 - sr.top) / (vh * .8), 0, 1);
-    var pout = clamp((sr.bottom - vh * .15) / (vh * .7), 0, 1);
-    var scr = Math.min(pin, pout), inside = scr > .02;
+    /* v9.2: 섹션 전체 진행도 t (0 = 섹션 윗변이 화면 아래 끝, 1 = 판이 고정에서 풀리는 순간)
+       들어오는 여백에서 솟기 시작 → 고정된 동안 다 솟아 있음 → 고정이 풀리기 전에(아직 화면 가운데에 있을 때) 하나둘 들어감 */
+    var H = Math.max(vh * 1.5, sr.height), t = clamp((vh - sr.top) / H, 0, 1);
+    var ss = function (a, b, x) { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+    var scr = Math.min(ss(.16, .42, t), 1 - ss(.8, .97, t)), inside = scr > .02;
     var want = scr;
     if (S.swapping) {
       if (S.swapPhase === "down") { want = 0; if ((S.lvl || 0) <= .001) { S.night = !S.night; applyPalette(S.night); S.swapPhase = "up"; } }

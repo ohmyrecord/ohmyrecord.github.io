@@ -80,6 +80,8 @@
     </div>
   </section>
 
+  <div class="sec-gap g-w2r" aria-hidden="true"></div>
+
   <!-- ⑤ Relay -->
   <section class="pin" id="relay" data-scene="C">
     <div class="stage">
@@ -108,6 +110,9 @@
     </div>
   </section>
 
+  <!-- v9.2: 릴레이와 팔각형 판 사이 쉬어 가는 여백 (그라데이션으로 이어짐) -->
+  <div class="sec-gap g-r2s" aria-hidden="true"></div>
+
   <!-- ⑦ 제품 고르기 (v8): 받침대 위의 작은 명동 — 끌어서 돌리기 · 도시 위 휠 확대 · 낮/밤 -->
   <section class="select" id="select">
     <div class="sel-stage" id="sStage">
@@ -122,6 +127,21 @@
         <p class="sel-drag" id="sHint"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M15.5 7.5A6 6 0 1 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M16.4 3.6v4.3h-4.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>끌어서 360° 돌리기 · 도시 위에서 휠로 확대</p>
         <button type="button" class="sel-night" id="sNight" aria-pressed="false"><i aria-hidden="true"></i><span>밤으로 보기</span></button>
       </header>
+      <!-- v9.2 조작 안내: 돌리기 · 확대 · 낮/밤 을 눈에 보이게 -->
+      <div class="sel-coach" id="sCoach" aria-hidden="true">
+        <div class="sel-coach-hand"><svg viewBox="0 0 48 48" width="44" height="44"><path d="M19 26V11a3 3 0 0 1 6 0v11l1-.2V9a3 3 0 0 1 6 0v13l1 .1V12a3 3 0 0 1 6 0v17c0 8-5 13-12 13h-1c-4.5 0-7.4-2-9.6-5.4L10 28.6a3 3 0 0 1 5-3.3z" fill="#FFFDF4" stroke="#2F312B" stroke-width="2" stroke-linejoin="round"/></svg></div>
+        <div class="sel-coach-arc"></div>
+        <p>끌어서 돌려 보세요</p>
+      </div>
+      <div class="sel-ctl" id="sCtl" role="toolbar" aria-label="작은 명동 조작">
+        <button type="button" data-ctl="left" aria-label="왼쪽으로 돌리기"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M8 7H4V3M4.6 7.2A8 8 0 1 1 4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><em>돌리기</em></button>
+        <button type="button" data-ctl="right" aria-label="오른쪽으로 돌리기"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M16 7h4V3m-.6 4.2A8 8 0 1 0 20 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><em>돌리기</em></button>
+        <i class="sel-ctl-sep"></i>
+        <button type="button" data-ctl="in" aria-label="확대"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><em>확대</em></button>
+        <button type="button" data-ctl="out" aria-label="축소"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><em>축소</em></button>
+        <i class="sel-ctl-sep"></i>
+        <button type="button" data-ctl="night" class="sel-ctl-night" aria-label="낮/밤 바꾸기"><span class="sun"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span class="moon"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="currentColor"/></svg></span><em class="lbl-n">밤으로</em><em class="lbl-d">낮으로</em></button>
+      </div>
       <div class="sel-pop" id="sPop" aria-live="polite">
         <span class="sel-pop-no" id="sPopNo"></span>
         <b class="sel-pop-name" id="sPopName"></b>
@@ -154,6 +174,8 @@
       </div>
     </div>
   </section>
+
+  <div class="sec-gap g-s2p" aria-hidden="true"></div>
 
   <!-- ⑧ Products -->
   <section class="products" id="products">

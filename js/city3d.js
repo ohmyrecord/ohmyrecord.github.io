@@ -1777,6 +1777,29 @@
     if (!p1.isVector3) return cr(p0, p1, p2, p3);
     return new T.Vector3(cr(p0.x, p1.x, p2.x, p3.x), cr(p0.y, p1.y, p2.y, p3.y), cr(p0.z, p1.z, p2.z, p3.z));
   }
+  /* v9.2 카메라와 바라보는 곳 사이에 건물(상자)이 끼면, 카메라를 그 건물 앞(바라보는 곳 쪽)으로 부드럽게 당김 */
+  var CAMK = {};
+  function camClear(look, cam, key) {
+    var dx = cam.x - look.x, dy = cam.y - look.y, dz = cam.z - look.z, len = Math.hypot(dx, dy, dz), tHit = 1;
+    if (len > 1 && OCB.length) {
+      var mnx = Math.min(look.x, cam.x), mxx = Math.max(look.x, cam.x), mnz = Math.min(look.z, cam.z), mxz = Math.max(look.z, cam.z);
+      for (var i = 0; i < OCB.length; i++) {
+        var b = OCB[i]; if (b[2] < mnx || b[0] > mxx || b[3] < mnz || b[1] > mxz) continue;
+        if (look.x > b[0] - 1 && look.x < b[2] + 1 && look.z > b[1] - 1 && look.z < b[3] + 1) continue;   // 바라보는 곳이 붙어 있는 건물은 제외
+        var t0 = 0, t1 = 1, ok = true;
+        if (Math.abs(dx) > 1e-9) { var a0 = (b[0] - look.x) / dx, a1 = (b[2] - look.x) / dx; if (a0 > a1) { var q = a0; a0 = a1; a1 = q; } t0 = Math.max(t0, a0); t1 = Math.min(t1, a1); } else if (look.x < b[0] || look.x > b[2]) ok = false;
+        if (ok && Math.abs(dz) > 1e-9) { var c0 = (b[1] - look.z) / dz, c1 = (b[3] - look.z) / dz; if (c0 > c1) { var q2 = c0; c0 = c1; c1 = q2; } t0 = Math.max(t0, c0); t1 = Math.min(t1, c1); } else if (ok && (look.z < b[1] || look.z > b[3])) ok = false;
+        if (!ok || t0 > t1 || t0 < 0.06) continue;
+        if (look.y + dy * t0 > b[4] && look.y + dy * t1 > b[4]) continue;   // 건물 위로 지나감
+        if (t0 < tHit) tHit = t0;
+      }
+    }
+    var want = tHit < 1 ? Math.max(0.18, tHit - 3 / len) : 1;
+    var k = CAMK[key] == null ? want : CAMK[key];
+    k += (want - k) * (want < k ? 0.35 : 0.08);   // 가릴 때는 빨리 당기고, 풀릴 때는 천천히 물러남
+    CAMK[key] = k;
+    return new T.Vector3(look.x + dx * k, look.y + dy * k, look.z + dz * k);
+  }
   // u: 0 ~ 1 (릴레이 01 구간)
   api.relay = function (u, t) {
     if (!api.ok || !RL || !api.relayReady) return false;
@@ -1887,6 +1910,7 @@
       var flook = hp.clone().addScaledVector(fwd, 28); flook.y = 9;
       cpos.lerp(fpos, fw); clook.lerp(flook, fw); fov = lerp(fov, 36, fw);
     }
+    cpos = camClear(clook, cpos, 'relay');   // v9.2: 건물이 시야를 가리면 카메라를 가리는 건물 앞쪽으로 당김
     camera.position.copy(cpos); camera.up.set(0, 1, 0); camera.lookAt(clook);
     if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
     // 초점: 사장님/FOLD MARK → 커플 → STREET FOLD

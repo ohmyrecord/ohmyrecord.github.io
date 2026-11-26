@@ -1229,58 +1229,7 @@
     $$("[data-unlock]").forEach(function (b) { b.addEventListener("click", function () { var k = b.getAttribute("data-unlock"); var s = $('[data-story="' + k + '"]'); if (s) scrollTo({ top: scrollY + s.getBoundingClientRect().top, behavior: reduced ? "auto" : "smooth" }); }); });
     $$("[data-skip]").forEach(function (b) { b.addEventListener("click", function () { unlock(b.getAttribute("data-skip")); }); });
 
-    /* =========================================================
-       v9 첫 화면: 점(LED)으로 그린 두 제품 — 위에서 빛이 쏟아지듯 하나씩 켜짐
-       3D 모델을 작은 그림으로 그린 뒤, 밝기를 점 크기로 바꿈 (모델이 바뀌면 점 그림도 따라 바뀜)
-       ========================================================= */
-    (function heroDots() {
-      var cvs = $$("canvas[data-dots]"); if (!cvs.length) return;
-      var W = 200, H = 92, rt = new T.WebGLRenderTarget(W, H), buf = new Uint8Array(W * H * 4);
-      var sc = new T.Scene(), cam = new T.PerspectiveCamera(22, W / H, .01, 30), ok = false, t0 = performance.now();
-      sc.environment = ENV_DAY; sc.environmentIntensity = .6;
-      var kl = new T.DirectionalLight(0xffffff, 3.2); kl.position.set(-1, 2.2, 1.6); sc.add(kl);
-      var rl = new T.DirectionalLight(0xffffff, 1.6); rl.position.set(1.6, 1, -1); sc.add(rl);
-      var pair = new T.Group(); sc.add(pair); var n = 0;
-      buildSF(function (m) { m.group.scale.setScalar(.27); m.group.position.set(.19, 0, -.06); m.group.rotation.y = -.45; pair.add(m.group); n++; });
-      buildFM(function (m) { m.group.scale.setScalar(2.3); m.group.position.set(-.16, 0, .12); m.group.rotation.y = .6; pair.add(m.group); n++; }, { noStrip: true });
-      cam.position.set(0, .5, 2.4); cam.lookAt(0, .3, 0);
-      var vis2 = cvs.map(function () { return false; });
-      if ("IntersectionObserver" in window) { var io2 = new IntersectionObserver(function (es) { es.forEach(function (e) { vis2[cvs.indexOf(e.target)] = e.isIntersecting; }); }); cvs.forEach(function (c) { io2.observe(c); }); } else vis2 = vis2.map(function () { return true; });
-      (function loop(now) {
-        requestAnimationFrame(loop);
-        if (!vis2.some(Boolean) || doc.hidden) return;
-        var tt = (now - t0) / 1000;
-        if (n === 2) {
-          pair.rotation.y = reduced ? 0 : Math.sin(tt * .25) * .35;
-          r.setRenderTarget(rt); r.setClearColor(0x000000, 0); r.clear(); r.render(sc, cam); r.readRenderTargetPixels(rt, 0, 0, W, H, buf); r.setRenderTarget(null); ok = true;
-        }
-        cvs.forEach(function (cv, ci) {
-          if (!vis2[ci]) return;
-          var cw = cv.clientWidth, ch = cv.clientHeight, dpr = Math.min(devicePixelRatio || 1, 2);
-          if (cv.width !== Math.round(cw * dpr) || cv.height !== Math.round(ch * dpr)) { cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); }
-          var g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, cw, ch);
-          var step = Math.min(cw / W * (cw < 700 ? 1.9 : 1), ch / H), ox = (cw - W * step) / 2, oy = (ch - H * step) / 2, rMax = step * .46;
-          var scan = reduced ? 2 : clamp((tt - .3) / 2.2, 0, 1.2);
-          for (var y = 0; y < H; y++) {
-            var yy = oy + (y + .5) * step; if (yy < -step || yy > ch + step) continue;
-            var rowOn = clamp((scan * H * 1.15 - y) / 10, 0, 1);
-            for (var x = 0; x < W; x++) {
-              var xx = ox + (x + .5) * step, i4 = ((H - 1 - y) * W + x) * 4, a = ok ? buf[i4 + 3] / 255 : 0;
-              var lum = ok ? (buf[i4] * .3 + buf[i4 + 1] * .55 + buf[i4 + 2] * .15) / 255 : 0, b = a * Math.pow(lum, .9) * rowOn;
-              // 위에서 쏟아지는 빛 (가운데가 더 밝음)
-              var beam = Math.exp(-Math.pow((x / W - .5) / .2, 2)) * (1 - y / H) * .35;
-              if (b > .04) {
-                g.fillStyle = b > .8 ? "rgba(255,244,214," + Math.min(1, b).toFixed(3) + ")" : "rgba(242," + (170 + (b * 60 | 0)) + ",72," + Math.min(1, .25 + b).toFixed(3) + ")";
-                g.beginPath(); g.arc(xx, yy, rMax * (.35 + .65 * Math.sqrt(b)), 0, 6.283); g.fill();
-              } else {
-                var dim = .05 + beam * rowOn * .5;
-                g.fillStyle = "rgba(242,200,110," + dim.toFixed(3) + ")"; g.fillRect(xx - .7, yy - .7, 1.4, 1.4);
-              }
-            }
-          }
-        });
-      })(0);
-    })();
+    /* v9.2 최적화: v9.1에서 뺀 점(LED) 첫 화면 코드 정리 */
 
     /* ---- 무대 고르기 ---- */
     var MAKERS = { film: stageFilm, fmSteps: stageFmSteps, fmStudio: stageFmStudio, sf: stageSF, fmStory: function (h) { return storyStage(h, "fm"); }, sfStory: function (h) { return storyStage(h, "sf"); } }, HOSTS = $$("[data-stage]");

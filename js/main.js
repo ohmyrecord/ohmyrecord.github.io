@@ -91,7 +91,7 @@
   var FACES = ["#F5E7B6", "#EFE9D6", "#F7F5E8", "#E6DFC8"];
   TXT.products.forEach(function (p, i) {
     var a = doc.createElement("a");
-    a.className = "card rv"; a.href = p.page; a.style.background = FACES[i % 4]; a.style.setProperty("--i", i);
+    a.className = "card rv"; a.href = p.page; a.style.setProperty("--i", i);   // v9.2: 배경은 아이보리 하나로 (CSS)
     var img = doc.createElement("img"); img.src = p.card; img.alt = p.name; img.loading = "lazy";
     var info = doc.createElement("div"); info.className = "card-info";
     var no = doc.createElement("div"); no.className = "card-no"; no.textContent = p.no;
@@ -103,6 +103,44 @@
     info.appendChild(no); info.appendChild(nm); info.appendChild(ln);
     a.appendChild(img); a.appendChild(info); $("grid").appendChild(a);
   });
+
+  /* v9.2 제품 카드 — 카드 위에서는 마우스 화살표 대신 노란 빛(그라데이션)이 뒤따라오고,
+     누르면 그 자리에서 노란색이 화면을 꽉 채우며 다음 페이지로 (불러오는 시간을 가려 줌) */
+  (function () {
+    var grid = $("grid"); if (!grid) return;
+    var glow = doc.createElement("div"); glow.className = "pc-glow"; glow.innerHTML = "<i></i><b></b>"; doc.body.appendChild(glow);
+    var core = glow.firstChild, halo = glow.lastChild;
+    var g = { x: 0, y: 0, cx: 0, cy: 0, hx: 0, hy: 0, on: false, run: false };
+    function tick() {
+      g.cx += (g.x - g.cx) * .3; g.cy += (g.y - g.cy) * .3; g.hx += (g.x - g.hx) * .09; g.hy += (g.y - g.hy) * .09;
+      core.style.transform = "translate3d(" + g.cx.toFixed(1) + "px," + g.cy.toFixed(1) + "px,0)";
+      halo.style.transform = "translate3d(" + g.hx.toFixed(1) + "px," + g.hy.toFixed(1) + "px,0)";
+      if (g.on || Math.abs(g.x - g.hx) + Math.abs(g.y - g.hy) > .5) requestAnimationFrame(tick); else g.run = false;
+    }
+    function move(e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      var over = !!(e.target.closest && e.target.closest(".card"));
+      if (over && !g.on) { g.cx = g.hx = e.clientX; g.cy = g.hy = e.clientY; }
+      g.x = e.clientX; g.y = e.clientY; g.on = over; glow.classList.toggle("is-on", over);
+      if (!g.run) { g.run = true; requestAnimationFrame(tick); }
+    }
+    grid.addEventListener("pointermove", move);
+    grid.addEventListener("pointerleave", function () { g.on = false; glow.classList.remove("is-on"); });
+    window.addEventListener("scroll", function () { if (g.on) { g.on = false; glow.classList.remove("is-on"); } }, { passive: true });
+    grid.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest(".card"); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || reduced) return;
+      e.preventDefault();
+      var x = e.clientX || innerWidth / 2, y = e.clientY || innerHeight / 2;
+      var R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 20;
+      var w = doc.createElement("div"); w.className = "pc-wipe"; w.style.setProperty("--x", x + "px"); w.style.setProperty("--y", y + "px"); w.style.setProperty("--r", R + "px");
+      doc.body.appendChild(w); a.classList.add("is-picked");
+      requestAnimationFrame(function () { requestAnimationFrame(function () { w.classList.add("is-go"); }); });
+      try { sessionStorage.setItem("md-wipe", "1"); } catch (er) {}
+      setTimeout(function () { location.href = a.href; }, 640);
+    });
+    // 뒤로 가기로 돌아왔을 때 노란 막이 남아 있지 않게
+    window.addEventListener("pageshow", function () { Array.prototype.forEach.call(doc.querySelectorAll(".pc-wipe"), function (n) { n.remove(); }); Array.prototype.forEach.call(doc.querySelectorAll(".card.is-picked"), function (n) { n.classList.remove("is-picked"); }); });
+  })();
 
   /* 그림 넣기 */
   if ($("oArt")) $("oArt").innerHTML = ART.street({ seed: 41, night: true });
@@ -339,6 +377,7 @@
       var z = -i * WS_GAP + camZ;   // 0 = 카메라 위치
       var on = i === cur;
       if (on !== s.el.classList.contains("reading")) s.el.classList.toggle("reading", on);
+      if (i <= cur && !s.lit) { s.lit = true; s.el.classList.add("lit"); }   // v9.2: 한 번 켜지면 계속 켜진 채
       s.el.style.opacity = z > -140 ? Math.max(0, 1 - (z + 140) / 160).toFixed(3) : z < -3800 ? 0 : (z < -2600 ? ((z + 3800) / 1200).toFixed(3) : 1);   // 지나친 간판은 곁으로 사라짐
       s.dot.classList.toggle("is-on", on); s.dot.classList.toggle("is-past", i < cur);
     });
@@ -737,6 +776,19 @@
     if (SEL.mode !== "detail") return;
     if (e.key === "Escape") selBack(); else if (e.key === "ArrowRight") selStep(1); else if (e.key === "ArrowLeft") selStep(-1);
   });
+  /* v9.2 팔각형 판 조작 버튼 */
+  (function () {
+    var box = $("sCtl"); if (!box || !DIO) return;
+    var hold = null;
+    function act(k) { if (k === "left") DIO.rotateBy(.02); else if (k === "right") DIO.rotateBy(-.02); else if (k === "in") DIO.zoomBy(.8); else if (k === "out") DIO.zoomBy(1.25); }
+    Array.prototype.forEach.call(box.querySelectorAll("[data-ctl]"), function (b) {
+      var k = b.getAttribute("data-ctl");
+      if (k === "night") { b.addEventListener("click", function () { DIO.toggleNight(); }); return; }
+      b.addEventListener("pointerdown", function (e) { e.preventDefault(); act(k); clearInterval(hold); hold = setInterval(function () { act(k); }, k === "in" || k === "out" ? 180 : 90); });
+      ["pointerup", "pointerleave", "pointercancel"].forEach(function (ev) { b.addEventListener(ev, function () { clearInterval(hold); }); });
+      b.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(k); } });
+    });
+  })();
   function selFrame(dt) {
     var sr = SEL.stage.getBoundingClientRect();
     if (!dioOK) { if (sr.bottom > 0 && sr.top < vh) mapS.render({ t: CFG.timelapseSpeed + idle.t + 900, org: 1, tint: 1, floor: 1, dark: 0, tables: 1, zoom: 0.9, fx: 700, fy: 470 }); return; }
@@ -776,12 +828,45 @@
   var cur = window.pageYOffset, last = -1, dirty = true;
   var hd = $("hd"), toTop = $("toTop");
   var lastTime = 0;
+  /* v9.2 장면 가장자리 그라데이션: 고정된 장면이 들어오고 나갈 때 위·아래 끝이 '뚝' 잘려 보이지 않게 색으로 녹여 줌 */
+  var EDGES = [
+    { sec: $("signSequence"), st: doc.querySelector("#signSequence .ws2-pin"), top: "#FFFDF4", bot: "#FFFDF4" },
+    { sec: $("relay"), st: doc.querySelector("#relay .stage"), top: "#FFFDF4", bot: "#FFFDF4" },
+    { sec: doc.querySelector(".select"), st: $("sStage"), top: "#EEE6CE", bot: "#FFFDF4" }
+  ].filter(function (e) { return e.sec && e.st; });
+  EDGES.forEach(function (e) {
+    var o = doc.createElement("div"); o.className = "edge-fade"; o.setAttribute("aria-hidden", "true");
+    o.innerHTML = '<i class="t"></i><i class="b"></i>'; e.st.appendChild(o);
+    e.t = o.firstChild; e.b = o.lastChild; e.t.style.setProperty("--c", e.top); e.b.style.setProperty("--c", e.bot); e.ot = e.ob = -1;
+  });
+  function edgeFrame() {
+    EDGES.forEach(function (e) {
+      var r = e.sec.getBoundingClientRect(); if (r.bottom < -50 || r.top > vh + 50) return;
+      var ot = clamp(r.top / (vh * .7), 0, 1), ob = clamp((vh - r.bottom) / (vh * .7), 0, 1);
+      if (Math.abs(ot - e.ot) > .004) { e.ot = ot; e.t.style.opacity = ot.toFixed(3); }
+      if (Math.abs(ob - e.ob) > .004) { e.ob = ob; e.b.style.opacity = ob.toFixed(3); }
+    });
+  }
+  var auto = { acc: 0, user: 0, up: false, self: false };
+  function userMove(e) { auto.user = performance.now(); auto.up = !!(e && ((e.deltaY || 0) < 0 || e.key === "ArrowUp" || e.key === "PageUp")); }
+  window.addEventListener("wheel", userMove, { passive: true });
+  window.addEventListener("touchmove", userMove, { passive: true });
+  window.addEventListener("keydown", userMove);
+  window.addEventListener("pointerdown", userMove);
   function frame(now) {
     var target = window.pageYOffset;
     var dtms = lastTime ? Math.min(window.MD_DTMAX || 100, now - lastTime) : 16; 
     var dtf = lastTime ? Math.min(4, (now - lastTime) / 16.67) : 1; lastTime = now;
     idle.t += dtms * 0.04;                       // 실제 시간에 따라 사람들이 계속 걷는 장면용
-    var k = reduced ? 1 : 1 - Math.pow(1 - CFG.smoothing, dtf);   // 화면이 느려도 같은 속도로 따라감
+    /* v9.2 릴레이 자동 재생: 손을 떼고 있어도 천천히 앞으로 (페이지를 조금씩 내려 줌) · 휠을 굴리면 그만큼 더 빨라짐 */
+    var scC = scenes.C, inRelay = scC && target >= scC.top - 2 && target < scC.top + scC.h - vh - 4;
+    if (inRelay && !reduced && !doc.hidden && !/noauto/.test(location.search) && performance.now() - auto.user > (auto.up ? 3500 : 900)) {
+      auto.acc += vh * (relay3dOn() ? .34 : .3) * dtms / 1000;
+      var st = Math.floor(auto.acc);
+      if (st >= 1) { auto.acc -= st; auto.self = true; window.scrollTo({ top: Math.min(scC.top + scC.h - vh, target + st), behavior: "instant" }); target = window.pageYOffset; }
+    } else auto.acc = 0;
+    var sm = inRelay ? Math.min(CFG.smoothing, .075) : CFG.smoothing;   // 릴레이에서는 더 부드럽게 따라감 (휠 한 번에 뚝 끊기지 않게)
+    var k = reduced ? 1 : 1 - Math.pow(1 - sm, dtf);   // 화면이 느려도 같은 속도로 따라감
     cur = Math.abs(target - cur) < 0.5 ? target : lerp(cur, target, k);
     if (cur !== last || dirty) {
       last = cur; dirty = false;
@@ -801,6 +886,7 @@
     if (A.live && !reduced && cur >= scenes.A.top && cur <= scenes.A.top + scenes.A.h) render3d("A", 1, 1);
     if (cur > outroTop - vh * 2.2) outroNight();
     selFrame(dtms / 1000);
+    edgeFrame();
     requestAnimationFrame(frame);
   }
 
