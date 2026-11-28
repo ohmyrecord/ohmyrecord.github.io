@@ -75,3 +75,13 @@ window.MD_CONFIG = {
 
 /* v9.2 최적화: 주소 끝에 ?lite 를 붙이면 가벼운 모드 (모델·사람 수를 줄임). 붙이지 않으면 지금과 똑같음 */
 try { if (/[?&]lite(=1)?(&|$)/.test(location.search)) window.MD_LITE = true; } catch (e) {}
+
+/* 모바일: 휴대폰·태블릿(손가락 터치 + 작은 화면)에서는 자동으로 가벼운 모드로 열림 → 메모리 부족으로 페이지가 꺼지지 않게.
+   휴대폰에서도 전체 버전을 보고 싶으면 주소 끝에 ?full */
+try {
+  if (!/[?&]full(=1)?(&|$)/.test(location.search)) {
+    var _ua = navigator.userAgent || "", _coarse = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+    var _small = Math.min(screen.width || 9999, screen.height || 9999) <= 900;
+    if (/Android|iPhone|iPad|iPod|Mobile/i.test(_ua) || (_coarse && _small) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(_ua))) window.MD_LITE = true;
+  }
+} catch (e) {}

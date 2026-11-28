@@ -823,3 +823,13 @@ html.is-locked, html.is-locked body { overscroll-behavior: none; }
 @media (max-width: 768px) { .sel-ctl { right: 10px; padding: 6px; } .sel-ctl button { width: 40px; height: 40px; } .sel-ctl button em { display: none; } .sel-coach p::after { content: ""; } }
 @media (prefers-reduced-motion: reduce) { .sel-coach-hand, .sel-ctl-night { animation: none; } }
 .sel-stage.is-3d .sel-ctl { opacity: 0; pointer-events: none; }
+
+/* 모바일: 팔각형 판 조작 버튼을 아래쪽 가로 줄로 (판을 가리지 않게) */
+@media (max-width: 768px) {
+  .sel-ctl { top: auto; right: auto; left: 50%; bottom: calc(4vh + 86px); flex-direction: row; gap: 2px; padding: 5px; transform: translate(-50%, 10px); }
+  .is-risen .sel-ctl { transform: translate(-50%, 0); }
+  .sel-ctl button { width: 40px; height: 40px; }
+  .sel-ctl-night { width: 44px !important; height: 44px !important; margin: 0 0 0 2px; }
+  .sel-ctl-sep { width: 1px; height: 22px; margin: 0 3px; }
+  .sel-coach { top: 46%; transform: scale(.85); }
+}
